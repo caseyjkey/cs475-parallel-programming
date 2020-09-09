@@ -10,7 +10,7 @@ all: $(EXEC)
 stencil_1D: stencil_1D.c $(OBJS) $(H_FILE)
 		$(CC) $(FLAGS) -o $@ stencil_1D.c $(OBJS) $(MATHFLAG)
 
-stencil_2D: stencil_1D.c $(OBJS) $(H_FILE)
+stencil_2D: stencil_2D.c $(OBJS) $(H_FILE)
 		$(CC) $(FLAGS) -o $@ stencil_2D.c $(OBJS) $(MATHFLAG)
 
 mat_vec: mat_vec.c $(OBJS) $(H_FILE)
