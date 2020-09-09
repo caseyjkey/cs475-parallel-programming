@@ -55,8 +55,10 @@ int main(int argc, char **argv) {
    start_timer();
 
    /* Compute */
+   #pragma omp parallel for
    for ( i=0 ; i < N ; i++ ) {
       c(i) = 0;
+      #pragma omp parallel for
       for ( j=0; j < M ; j++ ) {
          c(i) += A(i,j) * b(j);
       }
