@@ -1,3 +1,4 @@
+CC = gcc
 EXEC = stencil_1D stencil_2D mat_vec stencil_1D_SEQ stencil_2D_SEQ  mat_vec_SEQ
 OBJS = timer.o
 H_FILE = timer.h
