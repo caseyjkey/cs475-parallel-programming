@@ -18,7 +18,7 @@ def plot_multi(data, cols=None, spacing=.1, **kwargs):
     # Get default color style from pandas - can be changed to any other color list
     if cols is None: cols = data.columns
     if len(cols) == 0: return
-    colors = getattr(getattr(plotting, '_matplotlib').style, '_get_standard_colors')(num_colors=len(cols))
+    colors = plotting._style._get_standard_colors(num_colors=len(cols))
 
     # First axis
     print(data.loc[:, cols[0]])
@@ -96,15 +96,6 @@ ax3 = ax1.twinx()
 ax3.spines['right'].set_position(('axes', 1.1))
 efficiency_df.plot(ax=ax3)
 """
-
-from random import randrange
-data2 = pd.DataFrame(dict(
-    s1=[randrange(-1000, 1000) for _ in range(100)],
-    s2=[randrange(-100, 100) for _ in range(100)],
-    s3=[randrange(-10, 10) for _ in range(100)],
-))
-
-plot_multi(data2.cumsum(), figsize=(10, 5))
 
 
 filename = program_name.split('/')[1] 
