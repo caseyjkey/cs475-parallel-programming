@@ -18,7 +18,7 @@ def plot_multi(data, cols=None, spacing=.1, **kwargs):
     # Get default color style from pandas - can be changed to any other color list
     if cols is None: cols = data.columns
     if len(cols) == 0: return
-    colors = plotting._style._get_standard_colors(num_colors=len(cols))
+    colors = getattr(getattr(plotting, '_matplotlib').style, '_get_standard_colors')(num_colors=len(cols))
 
     # First axis
     print(data.loc[:, cols[0]])
