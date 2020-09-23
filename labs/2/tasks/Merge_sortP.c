@@ -10,9 +10,9 @@ void mergesort(int a[],int temp[], int low, int high) {
  int mid;
  if(low<high) {
   mid=(low+high)/2;             //find the midpoint
-  #pragma omp task if (mid>33)
+  #pragma omp task if (high-low>100)
   mergesort(a,temp,low,mid);   //sort the first half
-  #pragma omp task if (mid>33)
+  #pragma omp task if (high-low>100)
   mergesort(a,temp,mid+1,high); //sort the second half
   #pragma omp taskwait
   merge(a,temp,low,high,mid);  //merge them togeather into one sorted list
