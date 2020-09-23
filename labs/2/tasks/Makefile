@@ -4,9 +4,12 @@ FLAGS = -O3 -fopenmp
 DEBUGFLAG = -DDEBUG
 SEQFLAGS = -O3 -lm
 
-EXEC = Merge_sortNP Merge_sort_SEQ Merge_sort_debug
+EXEC = Merge_sortP Merge_sortNP Merge_sort_SEQ Merge_sort_debug
 
 all: $(EXEC)
+
+Merge_sortP: Merge_sortP.c $(OBJS)
+	$(CC) $(FLAGS)  -o $@ $< $(OBJS)
 
 Merge_sortNP: Merge_sortNP.c $(OBJS)
 	$(CC) $(FLAGS)  -o $@ $< $(OBJS)
