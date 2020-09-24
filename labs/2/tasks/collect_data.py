@@ -33,6 +33,8 @@ def plot_multi(data, cols=None, spacing=.1, **kwargs):
         ax_new.spines['right'].set_position(('axes', 1 + spacing * (n - 1)))
         data.loc[:, cols[n]].plot(ax=ax_new, label=cols[n], color=colors[n % len(colors)], **kwargs)
         ax_new.set_ylabel(ylabel=cols[n])
+        print(cols[n], 'max', data[cols[n]].max())
+        print(cols[n], 'data', data[cols[n]])
         ax_new.set_ylim([0, data.loc[:, cols[n]].max() + 10])
 
         # Proper legend position
@@ -80,7 +82,7 @@ for i, datum in enumerate(mean_times):
 
 print("Eff", efficiency_list)
 print("Speedup", speedup_list)
-
+#print("Eff * 100", [datum[1] * 100 for datum in efficiency_list])
 data = pd.DataFrame({
     "Mean Execution Time (s)": [datum[1] for datum in mean_times],
     "Speedup (%)": [datum[1] for datum in speedup_list],

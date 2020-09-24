@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 program_name = './Merge_sort_SEQ'
-arguments = '1000'
+arguments = ''
 time_token = 'time ='
 
 mean_times = [] # [[threads, mean], ...]
