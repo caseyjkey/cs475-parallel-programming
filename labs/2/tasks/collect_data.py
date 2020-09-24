@@ -22,7 +22,6 @@ def plot_multi(data, cols=None, spacing=.1, **kwargs):
     colors = ['red', 'green', 'blue']
 
     # First axis
-    print(data.loc[:, cols[0]])
     ax = data.loc[:, cols[0]].plot(label=cols[0], color=colors[0], **kwargs)
     ax.set_ylabel(ylabel=cols[0])
     lines, labels = ax.get_legend_handles_labels()
@@ -93,7 +92,7 @@ filename = program_name.split('/')[1]
 data.to_csv(filename + '.csv', index = False)
 #df.plot(kind = 'scatter')
 plot_multi(data, figsize=(10, 5))
-plt.xticks(np.arange(10), np.arange(1, 11))
+plt.xticks(np.arange(8), np.arange(1, 9))
 plt.subplots_adjust(right=0.8)
 plt.title(filename + ' Statistics')
 plt.savefig(filename + '.png')
