@@ -81,11 +81,6 @@ void MMScanDNC_helper(float ***X, float ***Y, float ***T, long start, long end, 
     MMScanDNC_helper(X, Y, T, mid + 1, end, size, aux, p);
     for(int i = mid + 1; i <= end; i++) {
     	multiplyMatrix(Y[i], Y[mid], T[i], size);
-//        for(int j = 0; j < size; j++) {
-//            for(int k = 0; k < size; k++) {
-//                Y[i][j][k] = T[i][j][k];
-//            }
-//        }
         float **temp = Y[i];
         Y[i] = T[i];
         T[i] = temp;
@@ -94,25 +89,43 @@ void MMScanDNC_helper(float ***X, float ***Y, float ***T, long start, long end, 
   return;
 }
 
-
 void MMScanDNC(float ***X, float ***Y, float ***T, long start, long end, long size, long aux, long p ){
-  /*  		                                                                 */
-  /*  		THE CODE BELOW IS IDENTICAL TO THE ONE FOR MMSCAN ABOVE          */
-  /*  		                                                                 */
-  /*  Your job is to replace it with a recursive (divide and conquer)
-  algorithm that first exposes parallelism, and then exploits it in different
-  ways.  You will write a single function, but with conditional compilation
-  flags.  Your Makefile should produce different executables for the different
-  parallel versions we require */
-
- // Initialize first Y matrix to all 1's
- /*for(int i=0; i <= size-1; i+=1) {
-      for(int j=0; j <= size-1; j+=1) {
-	  Y[start][i][j] = X[start][i][j];
-	}
-    }*/
  MMScanDNC_helper(X, Y, T, start, end, size, aux, p);
-
 }
 
+int tasks_created;
 
+void MMScanDNCP1(float ***X, float ***Y, float ***T, long start, long end, long size, long aux, long p ){
+  if (start == end) {
+    for(long i = 0; i < size; i++) {
+        for(long j = 0; j < size; j++) {
+            T[start][i][j] = X[start][i][j];
+            Y[start][i][j] = X[start][i][j];
+        }
+    }
+  }
+  else {
+    int mid = (start + end) / 2;
+    #pragma omp task if (tasks_created<p)
+    {
+        // Prevent a race condition
+        // May need to make this happen conditionally
+        // i.e. two threads increment at 14
+        #pragma omp atomic 
+            tasks_created++;
+//            printf("Tasks spawned: %d", tasks_created);
+
+        MMScanDNC_helper(X, Y, T, start, mid, size, aux, p);
+    }
+    MMScanDNC_helper(X, Y, T, mid + 1, end, size, aux, p);
+
+    #pragma omp taskwait
+    for(int i = mid + 1; i <= end; i++) {
+    	multiplyMatrix(Y[i], Y[mid], T[i], size);
+        float **temp = Y[i];
+        Y[i] = T[i];
+        T[i] = temp;
+    }
+  }
+  return;   
+}
