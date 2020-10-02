@@ -106,18 +106,29 @@ void MMScanDNCP1(float ***X, float ***Y, float ***T, long start, long end, long 
   }
   else {
     int mid = (start + end) / 2;
+    printf("tasks: %d, p: %ld\n", tasks_created, p);
     #pragma omp task if (tasks_created<p)
     {
         // Prevent a race condition
         // May need to make this happen conditionally
         // i.e. two threads increment at 14
-        #pragma omp atomic 
-            tasks_created++;
-//            printf("Tasks spawned: %d", tasks_created);
+        if (tasks_created<p) {
+            #pragma omp atomic
+           tasks_created++;
+        }
 
-        MMScanDNC_helper(X, Y, T, start, mid, size, aux, p);
+        MMScanDNCP1(X, Y, T, start, mid, size, aux, p);
     }
-    MMScanDNC_helper(X, Y, T, mid + 1, end, size, aux, p);
+    #pragma omp task if (tasks_created<p)
+    {
+
+        if (tasks_created<p) {
+           #pragma omp atomic
+           tasks_created++;
+        }
+
+        MMScanDNCP1(X, Y, T, mid + 1, end, size, aux, p);
+    }
 
     #pragma omp taskwait
     for(int i = mid + 1; i <= end; i++) {
