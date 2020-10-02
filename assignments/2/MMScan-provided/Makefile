@@ -1,10 +1,10 @@
-CFLAGS=  -O3  -std=c99 -fopenmp  -I/usr/include/malloc/ 
+CFLAGS=  -g -std=c99 -fopenmp  -I/usr/include/malloc/ 
 LIBRARIES=-lm
 CC=gcc 
 AR=xiar
 OBJS = MMScan.o
 
-all: plain verb int rand verb-rand check DNC DNC-int
+all: plain verb int rand verb-rand check DNC DNC-int DNC-check DNC-verb
 
 debug: CFLAGS =-DDEBUG -g -Wall -Wextra -std=c99 -I/usr/include/malloc/
 debug: all
@@ -43,6 +43,14 @@ DNC-int:
 
 
 ## Add additional line for different versions like verb, rand, etc. (for debugging/testing)
+
+DNC-check: 
+	$(CC) MMScan-wrapper.c -o MMScanDNC.check $(OBJS) $(CFLAGS) $(LIBRARIES) -DDNC -DCHECKING
+
+DNC-verb:
+	$(CC) MMScan-wrapper.c -o MMScanDNC.verb $(OBJS) $(CFLAGS) $(LIBRARIES) -DDNC -DVERBOSE
+
+
 
 ## Then add simolar sets of lines for other executables
 

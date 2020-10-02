@@ -135,6 +135,7 @@ int main(int argc, char** argv) {
 	      }
 #else // neither random not interactive, i.e., default
 	      X[n][i][j] = (float) (n+1)/((float) (B*n));
+	      printf("n: %ld, B: %ld, %ld/%ld = %f\n", n, B, (n+1), (B*n), X[n][i][j]); 
 #endif
 	    }
 	}
