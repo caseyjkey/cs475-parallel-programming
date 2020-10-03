@@ -111,10 +111,10 @@ void MMScanDNCP1(float ***X, float ***Y, float ***T, long start, long end, long 
         // Prevent a race condition
         // May need to make this happen conditionally
         // i.e. two threads increment at 14
-//        if (tasks_created<p) {
-  //          #pragma omp atomic
-    //       tasks_created++;
-      //  }
+        if (tasks_created<p) {
+            #pragma omp atomic
+            tasks_created++;
+        }
 
         MMScanDNCP1(X, Y, T, start, mid, size, aux, p);
     }
@@ -122,7 +122,6 @@ void MMScanDNCP1(float ***X, float ***Y, float ***T, long start, long end, long 
     MMScanDNCP1(X, Y, T, mid + 1, end, size, aux, p);
     
     #pragma omp taskwait
-    #pragma omp parallel for
     for(int i = mid + 1; i <= end; i++) {
     	multiplyMatrix(Y[i], Y[mid], T[i], size);
         float **temp = Y[i];
