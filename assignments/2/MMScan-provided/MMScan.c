@@ -93,8 +93,6 @@ void MMScanDNC(float ***X, float ***Y, float ***T, long start, long end, long si
  MMScanDNC_helper(X, Y, T, start, end, size, aux, p);
 }
 
-int tasks_created = 0;
-
 void MMScanDNCP1(float ***X, float ***Y, float ***T, long start, long end, long size, long aux, long p ){
   if (start == end) {
     for(long i = 0; i < size; i++) {
@@ -107,21 +105,64 @@ void MMScanDNCP1(float ***X, float ***Y, float ***T, long start, long end, long 
   else {
     int mid = (start + end) / 2;
     #pragma omp task if (end-start<p)
-    {
-        // Prevent a race condition
-        // May need to make this happen conditionally
-        // i.e. two threads increment at 14
-        if (tasks_created<p) {
-            #pragma omp atomic
-            tasks_created++;
-        }
-
-        MMScanDNCP1(X, Y, T, start, mid, size, aux, p);
-    }
+    MMScanDNCP1(X, Y, T, start, mid, size, aux, p);
 
     MMScanDNCP1(X, Y, T, mid + 1, end, size, aux, p);
     
     #pragma omp taskwait
+    for(int i = mid + 1; i <= end; i++) {
+    	multiplyMatrix(Y[i], Y[mid], T[i], size);
+        float **temp = Y[i];
+        Y[i] = T[i];
+        T[i] = temp;
+    }
+  }
+  return;   
+}
+
+void MMScanDNCP2(float ***X, float ***Y, float ***T, long start, long end, long size, long aux, long p ){
+  if (start == end) {
+    for(long i = 0; i < size; i++) {
+        for(long j = 0; j < size; j++) {
+            T[start][i][j] = X[start][i][j];
+            Y[start][i][j] = X[start][i][j];
+        }
+    }
+  }
+  else {
+    int mid = (start + end) / 2;
+    MMScanDNCP1(X, Y, T, start, mid, size, aux, p);
+    MMScanDNCP1(X, Y, T, mid + 1, end, size, aux, p);
+    
+    #pragma omp parallel for if (end-start>aux)
+    for(int i = mid + 1; i <= end; i++) {
+    	multiplyMatrix(Y[i], Y[mid], T[i], size);
+        float **temp = Y[i];
+        Y[i] = T[i];
+        T[i] = temp;
+    }
+  }
+  return;   
+}
+
+void MMScanDNCP3(float ***X, float ***Y, float ***T, long start, long end, long size, long aux, long p ){
+  if (start == end) {
+    for(long i = 0; i < size; i++) {
+        for(long j = 0; j < size; j++) {
+            T[start][i][j] = X[start][i][j];
+            Y[start][i][j] = X[start][i][j];
+        }
+    }
+  }
+  else {
+    int mid = (start + end) / 2;
+    #pragma omp task if (end-start<p)
+    MMScanDNCP1(X, Y, T, start, mid, size, aux, p);
+
+    MMScanDNCP1(X, Y, T, mid + 1, end, size, aux, p);
+    
+    #pragma omp taskwait
+    #pragma omp parallel for if (end-start>aux)
     for(int i = mid + 1; i <= end; i++) {
     	multiplyMatrix(Y[i], Y[mid], T[i], size);
         float **temp = Y[i];

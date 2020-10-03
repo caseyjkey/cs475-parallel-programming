@@ -4,7 +4,7 @@ CC=gcc
 AR=xiar
 OBJS = MMScan.o
 
-all: plain verb int rand verb-rand check DNC DNC-int DNCP1 DNC-check DNC-verb DNCP1-check
+all: plain verb int rand verb-rand check DNC DNC-int DNCP1 DNCP2 DNC-check DNC-verb DNCP1-check DNCP2-check
 
 debug: CFLAGS =-DDEBUG -g -Wall -Wextra -std=c99 -I/usr/include/malloc/
 debug: all
@@ -44,6 +44,9 @@ DNC-int:
 DNCP1: MMScanDNCP1.o
 	$(CC) MMScan-wrapper.c -o MMScanDNCP1 MMScanDNCP1.o $(CFLAGS) $(LIBRARIES) -DDNCP1
 
+DNCP2: MMScanDNCP2.o
+	$(CC) MMScan-wrapper.c -o MMScanDNCP2 MMScanDNCP2.o $(CFLAGS) $(LIBRARIES) -DDNCP2
+
 
 ## Add additional line for different versions like verb, rand, etc. (for debugging/testing)
 
@@ -59,9 +62,15 @@ DNC-verb:
 DNCP1-check:
 	$(CC) MMScan-wrapper.c -o MMScanDNCP1.check $(OBJS) $(CFLAGS) $(LIBRARIES) -DDNCP1 -DCHECKING
 
+DNCP2-check:
+	$(CC) MMScan-wrapper.c -o MMScanDNCP2.check $(OBJS) $(CFLAGS) $(LIBRARIES) -DDNCP2 -DCHECKING
+
 MMScanDNCP1.o: MMScan.c
 	$(CC) MMScan.c -o MMScanDNCP1.o $(CFLAGS) $(LIBRARIES) -c -DDNCP1 -DOTHER_FLAGS # (as needed)
 
+MMScanDNCP2.o: MMScan.c
+	$(CC) MMScan.c -o MMScanDNCP2.o $(CFLAGS) $(LIBRARIES) -c -DDNCP2 -DOTHER_FLAGS # (as needed)
+
 
 clean:
-	rm -f *.o MMScan MMScan.verb MMScan.int MMScan.rand MMScan.verb-rand MMScan.check MMScanDNC MMScanDNC.int 
+	rm -f *.o MMScan MMScan.verb MMScan.int MMScan.rand MMScan.verb-rand MMScan.check MMScanDNC MMScanDNC.int MMScanDNC.verb MMScanDNC.check MMScanDNCP1.check MMScanDNCP2.check MMScanDNCP1 MMScanDNCP2 
