@@ -8,8 +8,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-program_name = './MMScanDNCP2'
-arguments = '500000 12'
+program_name = './MMScanDNCP3'
+arguments = '50000 12'
 time_token = 'DNC:'
 
 def plot_multi(data, cols=None, spacing=.1, **kwargs):
@@ -46,50 +46,49 @@ def plot_multi(data, cols=None, spacing=.1, **kwargs):
     return ax
 
 
-mean_times = [] # [[threads, mean], ...]
-for aux in [1, 10, 100, 1000, 10000, 40000, 60000, 100000]:
-    #print("Threads:", threads)
-    #os.environ['OMP_NUM_THREADS'] = str(threads)
-    results = []
-    for i in range(0, 8): 
-        output = subprocess.run([program_name] + (arguments + ' ' + str(aux)).split(), stdout=subprocess.PIPE).stdout.decode('utf-8')
-        result = re.search('(?<=' + time_token + ').\S*', output).group(0).strip()
-        print(result)
-        results.append(float(result))
-    results.remove(max(results))
-    results.remove(min(results))
-    mean = sum(results)/len(results)
-    print('Mean:', mean, '\n')
-    mean_times.append((aux, mean))
+mean_times = {} # [[threads, mean], ...]
+aux_list = [1, 10, 100, 1000, 10000, 40000, 60000, 100000]
+for aux in aux_list:
+    print("Threads: 16")
+    os.environ['OMP_NUM_THREADS'] = '16'
+    mean_times[aux] = []
+    for p in [40000, 60000, 100000, 300000, 500000];
+        results = []
+        for i in range(0, 8): 
+            output = subprocess.run([program_name] + (arguments + ' ' + str(aux)).split(), stdout=subprocess.PIPE).stdout.decode('utf-8')
+            result = re.search('(?<=' + time_token + ').\S*', output).group(0).strip()
+            print(result)
+            results.append(float(result))
+        results.remove(max(results))
+        results.remove(min(results))
+        mean = sum(results)/len(results)
+        print('Aux:', aux, 'P:', p, 'Mean:', mean, '\n')
+        mean_times[aux].append((p, mean))
 
-# Create efficiency and speedup dataframes
-# data = [[threads, mean, speedup, efficiency], ...]
-seq_data = [5.782719, 5.944667, 5.933426, 5.946885, 5.946885, 5.933235, 5.946597]
-seq_data.remove(max(seq_data))
-seq_data.remove(min(seq_data))
-seq_mean = sum(seq_data)/len(seq_data)
+best_times = []
+for aux in aux_list:
+    lowest = (69, 1000000000)
+    for i, datum in enumerate(mean_times[aux]):
+        p = datum[0]
+        mean = datum[1]
+        if mean < lowest[1]:
+            lowest = datum
 
-speedup_list = []
-efficiency_list = []
-for i, datum in enumerate(mean_times):
-    aux = datum[0]
-    mean = datum[1]
-    speedup = seq_mean / mean 
-    efficiency = speedup / aux * 100
-    speedup_list.append((aux, speedup))
-    efficiency_list.append((aux, efficiency))
+    best_times.append((aux, lowest[0], lowest[1]))
+        
 
 data = pd.DataFrame({
-    "Aux": [1, 10, 100, 1000, 10000, 40000, 60000, 100000],
-    "Mean Execution Time (s)": [datum[1] for datum in mean_times]
+    "Aux": aux_list,
+    "P": [datum[1] for datum in best_times],
+    "Mean Execution Time (s)": [datum[2] for datum in best_times]
 #    "Speedup (%)": [datum[1] for datum in speedup_list],
 #    "Efficiency (%)": [datum[1] for datum in efficiency_list]
 })
 
 filename = program_name.split('/')[1] 
 data.to_csv(filename + '.csv', index = False)
-data.plot(x='Aux', y='Mean Execution Time (s)', kind = 'scatter')
-#plot_multi(data, figsize=(10, 5))
+#data.plot(x='Aux', y='Mean Execution Time (s)', kind = 'scatter')
+plot_multi(data, figsize=(10, 5))
 #plt.xticks(np.arange(8), np.arange(1, 9))
 #plt.subplots_adjust(right=0.8)
 plt.title(filename + ' Statistics')

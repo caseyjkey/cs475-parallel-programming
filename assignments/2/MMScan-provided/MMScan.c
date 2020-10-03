@@ -131,8 +131,8 @@ void MMScanDNCP2(float ***X, float ***Y, float ***T, long start, long end, long 
   }
   else {
     int mid = (start + end) / 2;
-    MMScanDNCP1(X, Y, T, start, mid, size, aux, p);
-    MMScanDNCP1(X, Y, T, mid + 1, end, size, aux, p);
+    MMScanDNCP2(X, Y, T, start, mid, size, aux, p);
+    MMScanDNCP2(X, Y, T, mid + 1, end, size, aux, p);
     
     #pragma omp parallel for if (end-start>aux)
     for(int i = mid + 1; i <= end; i++) {
@@ -157,9 +157,8 @@ void MMScanDNCP3(float ***X, float ***Y, float ***T, long start, long end, long 
   else {
     int mid = (start + end) / 2;
     #pragma omp task if (end-start<p)
-    MMScanDNCP1(X, Y, T, start, mid, size, aux, p);
-
-    MMScanDNCP1(X, Y, T, mid + 1, end, size, aux, p);
+    MMScanDNCP3(X, Y, T, start, mid, size, aux, p);
+    MMScanDNCP3(X, Y, T, mid + 1, end, size, aux, p);
     
     #pragma omp taskwait
     #pragma omp parallel for if (end-start>aux)

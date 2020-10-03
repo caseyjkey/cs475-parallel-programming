@@ -31,6 +31,7 @@ void MMScan(float***, float***, long, long, long);
 void MMScanDNC(float***, float***, float***, long, long, long, long, long);
 void MMScanDNCP1(float***, float***, float***, long, long, long, long, long);
 void MMScanDNCP2(float***, float***, float***, long, long, long, long, long);
+void MMScanDNCP3(float***, float***, float***, long, long, long, long, long);
 
 //main
 int main(int argc, char** argv) {
@@ -177,6 +178,14 @@ int main(int argc, char** argv) {
         #pragma omp single
         MMScanDNCP2(X, Y, Temp, 0, N-1, B, tuning, 1); // last param is from command
   }
+
+#elif defined DNCP3
+  #pragma omp parallel
+  {
+        #pragma omp single
+        MMScanDNCP3(X, Y, Temp, 0, N-1, B, 10000, tuning); // last param is from command
+  }
+
 
 
 #else

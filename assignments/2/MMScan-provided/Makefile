@@ -47,6 +47,9 @@ DNCP1: MMScanDNCP1.o
 DNCP2: MMScanDNCP2.o
 	$(CC) MMScan-wrapper.c -o MMScanDNCP2 MMScanDNCP2.o $(CFLAGS) $(LIBRARIES) -DDNCP2
 
+DNCP3: MMScanDNCP3.o
+	$(CC) MMScan-wrapper.c -o MMScanDNCP3 MMScanDNCP3.o $(CFLAGS) $(LIBRARIES) -DDNCP3
+
 
 ## Add additional line for different versions like verb, rand, etc. (for debugging/testing)
 
@@ -65,12 +68,18 @@ DNCP1-check:
 DNCP2-check:
 	$(CC) MMScan-wrapper.c -o MMScanDNCP2.check $(OBJS) $(CFLAGS) $(LIBRARIES) -DDNCP2 -DCHECKING
 
+DNCP3-check:
+	$(CC) MMScan-wrapper.c -o MMScanDNCP3.check $(OBJS) $(CFLAGS) $(LIBRARIES) -DDNCP3 -DCHECKING
+
+
 MMScanDNCP1.o: MMScan.c
 	$(CC) MMScan.c -o MMScanDNCP1.o $(CFLAGS) $(LIBRARIES) -c -DDNCP1 -DOTHER_FLAGS # (as needed)
 
 MMScanDNCP2.o: MMScan.c
 	$(CC) MMScan.c -o MMScanDNCP2.o $(CFLAGS) $(LIBRARIES) -c -DDNCP2 -DOTHER_FLAGS # (as needed)
 
+MMScanDNCP3.o: MMScan.c
+	$(CC) MMScan.c -o MMScanDNCP3.o $(CFLAGS) $(LIBRARIES) -c -DDNCP3 -DOTHER_FLAGS # (as needed)
 
 clean:
-	rm -f *.o MMScan MMScan.verb MMScan.int MMScan.rand MMScan.verb-rand MMScan.check MMScanDNC MMScanDNC.int MMScanDNC.verb MMScanDNC.check MMScanDNCP1.check MMScanDNCP2.check MMScanDNCP1 MMScanDNCP2 
+	rm -f *.o MMScan MMScan.verb MMScan.int MMScan.rand MMScan.verb-rand MMScan.check MMScanDNC MMScanDNC.int MMScanDNC.verb MMScanDNC.check MMScanDNCP1.check MMScanDNCP2.check MMScanDNCP2.check MMScanDNCP1 MMScanDNCP2 MMScanDNCP3 
