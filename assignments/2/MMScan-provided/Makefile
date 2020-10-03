@@ -82,4 +82,4 @@ MMScanDNCP3.o: MMScan.c
 	$(CC) MMScan.c -o MMScanDNCP3.o $(CFLAGS) $(LIBRARIES) -c -DDNCP3 -DOTHER_FLAGS # (as needed)
 
 clean:
-	rm -f *.o MMScan MMScan.verb MMScan.int MMScan.rand MMScan.verb-rand MMScan.check MMScanDNC MMScanDNC.int MMScanDNC.verb MMScanDNC.check MMScanDNCP1.check MMScanDNCP2.check MMScanDNCP2.check MMScanDNCP1 MMScanDNCP2 MMScanDNCP3 
+	rm -f *.o MMScan MMScan.verb MMScan.int MMScan.rand MMScan.verb-rand MMScan.check MMScanDNC MMScanDNC.int MMScanDNC.verb MMScanDNCP1.verb MMScanDNC.check MMScanDNCP1.check MMScanDNCP2.check MMScanDNCP2.check MMScanDNCP3.check MMScanDNCP1 MMScanDNCP2 MMScanDNCP3 
