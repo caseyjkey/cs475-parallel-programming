@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 program_name = './MMScanDNCP3'
-arguments = '50000 6'
+arguments = '500000 6'
 time_token = 'DNC:'
 
 def plot_multi(data, cols=None, spacing=.1, **kwargs):
