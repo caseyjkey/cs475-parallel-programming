@@ -164,8 +164,10 @@ int main(int argc, char** argv) {
 					      // is arbitrary
 #elif defined DNCP1
   #pragma omp parallel
-  #pragma omp single    
-  MMScanDNCP1(X, Y, Temp, 0, N-1, B, 10000, tuning); // last param is from command
+  {
+        #pragma omp single
+        MMScanDNCP1(X, Y, Temp, 0, N-1, B, 10000, tuning); // last param is from command
+  }
 					      // line and the one before that
 	
 #else
