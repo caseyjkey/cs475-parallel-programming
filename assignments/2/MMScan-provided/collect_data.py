@@ -48,8 +48,8 @@ def plot_multi(data, cols=None, spacing=.1, **kwargs):
 
 mean_times = [] # [[threads, mean], ...]
 for p in [1, 10, 100, 1000, 10000, 40000, 60000, 100000]:
-    #print("Threads:", threads)
-    #os.environ['OMP_NUM_THREADS'] = str(threads)
+    print("Threads: 16")
+    os.environ['OMP_NUM_THREADS'] = str(16)
     results = []
     for i in range(0, 8): 
         output = subprocess.run([program_name] + (arguments + ' ' + str(p)).split(), stdout=subprocess.PIPE).stdout.decode('utf-8')

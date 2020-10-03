@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 program_name = './MMScanDNCP3'
-arguments = '50000 12'
+arguments = '50000 6'
 time_token = 'DNC:'
 
 def plot_multi(data, cols=None, spacing=.1, **kwargs):
@@ -52,7 +52,7 @@ for aux in aux_list:
     print("Threads: 16")
     os.environ['OMP_NUM_THREADS'] = '16'
     mean_times[aux] = []
-    for p in [40000, 60000, 100000, 300000, 500000];
+    for p in [40000, 60000, 100000, 300000, 500000]:
         results = []
         for i in range(0, 8): 
             output = subprocess.run([program_name] + (arguments + ' ' + str(aux)).split(), stdout=subprocess.PIPE).stdout.decode('utf-8')

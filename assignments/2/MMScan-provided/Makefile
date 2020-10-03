@@ -4,7 +4,7 @@ CC=gcc
 AR=xiar
 OBJS = MMScan.o
 
-all: plain verb int rand verb-rand check DNC DNC-int DNCP1 DNCP2 DNC-check DNC-verb DNCP1-check DNCP2-check
+all: plain verb int rand verb-rand check DNC DNC-int DNCP1 DNCP2 DNCP3 DNC-check DNC-verb DNCP1-check DNCP2-check DNCP3-check
 
 debug: CFLAGS =-DDEBUG -g -Wall -Wextra -std=c99 -I/usr/include/malloc/
 debug: all
