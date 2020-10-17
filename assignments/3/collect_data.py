@@ -8,29 +8,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-baseline = {
-    'program_name': './syr2k',
-    'arguments': '1500 1500 2>/dev/null',
-    'time_token': 'time='
+sieve = {
+    'program_name': './sieve',
+    'arguments': '100',
+    'time_token': 'time ='
 }
 
-perm = {
-    'program_name': './syr2k-perm',
-    'arguments': '1500 1500 2>/dev/null',
-    'time_token': 'time='
+sieve1 = {
+    'program_name': './sieve1',
+    'arguments': '100',
+    'time_token': 'time ='
 }
 
-baselineP = {
-    'program_name': './syr2kP',
-    'arguments': '1500 1500 2>/dev/null',
-    'time_token': 'time='
-}
-
-permP = {
-    'program_name': './syr2k-permP',
-    'arguments': '1500 1500 2>/dev/null',
-    'time_token': 'time='
-}
 
 def plot_multi(data, cols=None, spacing=.1, **kwargs):
 
@@ -85,6 +74,26 @@ def collect_data(program):
         thread_means.append(mean)
     return thread_means 
 
+# [program] Dict
+def collect_seq_data(program):
+    times = []
+    problem_size_means = []
+    for problem_size in [100000, 200000, 300000]:
+        print("Problem size:", problem_size)
+
+        results = []
+        for i in range(0, 8): 
+            output = subprocess.run([program['program_name']] + program['arguments'].split(), capture_output=True).stdout.decode('utf-8')
+            result = re.search('(?<=' + program['time_token'] + ').\S*', output).group(0).strip()
+            print(result)
+            results.append(float(result))
+        results.remove(max(results))
+        results.remove(min(results))
+        mean = sum(results)/len(results)
+        problem_size_means.append(mean)
+    return problem_size_means 
+
+
 def calculate_speedup(baseline_mean, test_times):
     speedup_list = []
     for time in test_times:
@@ -93,43 +102,44 @@ def calculate_speedup(baseline_mean, test_times):
     return speedup_list
 
 
-baseline_results = collect_data(baseline)
-baseline_mean = sum(baseline_results)/len(baseline_results)
+baseline_results = collect_seq_data(sieve)
+#baseline_mean = sum(baseline_results)/len(baseline_results)
 
-perm_results = collect_data(perm)
+sieve1_results = collect_seq_data(sieve1)
 
-baselineP_results = collect_data(baselineP)
+#sieve2_speedups = calculate_speedup(baseline_mean, sieve_results)
 
-permP_results = collect_data(permP)
+seq_data = pd.DataFrame({
+    "Problem Size": [100000, 200000, 300000],
+    "Sieve": baseline_results,
+    "Sieve1": sieve1_results
+})
 
-perm_speedups = calculate_speedup(baseline_mean, perm_results)
-baselineP_speedups = calculate_speedup(baseline_mean, baselineP_results)
-permP_speedups = calculate_speedup(baseline_mean, permP_results)
-
+"""
 data = pd.DataFrame({
     "Threads": [i for i in range(1, len(perm_speedups)+1)],
-    "Permuted Speedup (%)": perm_speedups,
+    "Sieve1 Speedup (%)": perm_speedups,
     "Baseline Parallelized Speedup (%)": baselineP_speedups,
     "Permuted Parallelized Speedup (%)": permP_speedups
 })
+"""
 
-filename = 'Locality'
+filename = 'sieve'
 data.to_csv(filename + '.csv', index = False)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-ax.plot(data['Threads'], data['Permuted Speedup (%)'], label = 'Permuted')
-ax.plot(data['Threads'], data['Baseline Parallelized Speedup (%)'], label = 'Baseline Parallelized')
-ax.plot(data['Threads'], data['Permuted Parallelized Speedup (%)'], label = 'Permuted Parallelized')
+ax.plot(data['Problem Size'], data['Sieve'], label = 'Permuted')
+ax.plot(data['Problem Size'], data['Sieve1'], label = 'Baseline Parallelized')
 
-plt.xlabel('Threads')
-plt.ylabel('Speedup (%)')
+plt.xlabel('Problem Size')
+plt.ylabel('Execution Time (s)')
 
 #plot_multi(data, figsize=(10, 5))
 #plt.xticks(np.arange(8), np.arange(1, 9))
 #plt.subplots_adjust(right=0.8)
-plt.title('Locality' + ' Statistics')
+plt.title('Sieve' + ' Statistics')
 plt.legend()
-plt.savefig('Locality' + '.png')
+plt.savefig('Sieve' + '.png')
 plt.show()    
 
