@@ -31,6 +31,9 @@ int main(int argc, char **argv) {
 
    if ( argc > 1 ) N  = atoi(argv[1]);
 
+   // N will get cut in half to save memory
+   long problem_size = N;
+
    /* Start Timer */
 
    initialize_timer ();
@@ -39,28 +42,31 @@ int main(int argc, char **argv) {
    // Only store odds
    // Half memory if N % 2 == 0
    // Half memory +1 if N is odd
-   // +1 for null character
    if (N % 2 == 0)
-       size = (N/2 + 1)*sizeof(char);
+       N = (N/2);
    else
-       size = (N/2 + 1 + 1)*sizeof(char);
+       N = (N/2 + 1);
 
-   // +1 for null temrinator
+   // +1 for null character 
    size = (N+1)*sizeof(char);
    mark = (char *)malloc(size);
 
-   for (i=2; i<=N; i=i+1){
+   for (i=1; i<=N; i=i+1){
      mark[i]=0;
    }
 
-   int k, index;
-   k = 2; index = 2;
+   // We want to skip the value 1 (results start from 2)
    mark[0] = 1;
-   mark[1] = 1;
 
-   while (k*k <= N) { // Iterate to sqrt(n)
-        for (i = k*k; i <= N; i += k) mark[i] = 1;
-        while (mark[++index]); // Get next prime (unmarked value)
+   int k, index;
+   k = 3; index = 3;
+
+   while (k*k <= problem_size) { // Iterate to sqrt(n)
+        for (i = k*k; i <= problem_size; i += 2*k) mark[i/2] = 1;
+        
+        // Get next odd prime (unmarked value)
+        index += 2;
+        while (mark[index/2]) index += 2; 
         k = index;
    }
 
@@ -69,21 +75,22 @@ int main(int argc, char **argv) {
    time=elapsed_time ();
 
    /*number of primes*/
+   // Count and i are magic numbers
    count = 1;
-   for(i = 3; i <=N; i+=2){
+   for(i = 2; i <= N; i+=1){
         if(mark[i] == 0) {
         	//  printf("\t prime %ld  \n",i );
         	++count;
         }
 
    }
-   printf("There are %ld primes less than or equal to %ld\n", count, N);
+   printf("There are %ld primes less than or equal to %ld\n", count, problem_size);
    /* print results */
    printf("First three primes:");
    j = 1;
    printf("%d ", 2);
-   for ( i=3 ; i <= N && j < 3; i+=2 ) {
-      if (mark[i]==0){
+   for ( i=3 ; i <= problem_size && j < 3; i+=2 ) {
+      if (mark[i/2]==0){
             printf("%ld ", i);
             ++j;
       }
@@ -92,9 +99,9 @@ int main(int argc, char **argv) {
 
    printf("Last three primes:");
    j = 0;
-   n=(N%2?N:N-1);
+   n=(problem_size%2?problem_size:problem_size-1);
    for (i = n; i > 1 && j < 3; i-=2){
-     if (mark[i]==0){
+     if (mark[i/2]==0){
         printf("%ld ", i);
         j++;
      }
