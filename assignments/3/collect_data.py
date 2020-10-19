@@ -20,6 +20,12 @@ sieve1 = {
     'time_token': 'time ='
 }
 
+sieve2 = {
+    'program_name': './sieve2-1',
+    'arguments': '100',
+    'time_token': 'time ='
+}
+
 
 def plot_multi(data, cols=None, spacing=.1, **kwargs):
 
@@ -58,32 +64,32 @@ def plot_multi(data, cols=None, spacing=.1, **kwargs):
 def collect_data(program):
     times = []
     thread_means = []
-    for threads in range(1, 11):
+    for threads in range(1, 9):
         print("Threads:", threads)
         os.environ['OMP_NUM_THREADS'] = str(threads)
-
-        results = []
-        for i in range(0, 8): 
-            output = subprocess.run([program['program_name']] + program['arguments'].split(), capture_output=True).stdout.decode('utf-8')
-            result = re.search('(?<=' + program['time_token'] + ').\S*', output).group(0).strip()
-            print(result)
-            results.append(float(result))
-        results.remove(max(results))
-        results.remove(min(results))
-        mean = sum(results)/len(results)
-        thread_means.append(mean)
+        for size in [500000000, 1000000000, 1500000000]:
+            results = []
+            for i in range(0, 8): 
+                output = subprocess.run([program['program_name']] + str(size).split(), capture_output=True).stdout.decode('utf-8')
+                result = re.search('(?<=' + program['time_token'] + ').\S*', output).group(0).strip()
+                print(threads, size, result)
+                results.append(float(result))
+            results.remove(max(results))
+            results.remove(min(results))
+            mean = sum(results)/len(results)
+            thread_means.append(threads, size, mean)
     return thread_means 
 
 # [program] Dict
-def collect_seq_data(program):
+def collect_seq_data(program, sizes):
     times = []
     problem_size_means = []
-    for problem_size in [100000, 200000, 300000]:
+    for problem_size in sizes:
         print("Problem size:", problem_size)
 
         results = []
         for i in range(0, 8): 
-            output = subprocess.run([program['program_name']] + program['arguments'].split(), capture_output=True).stdout.decode('utf-8')
+            output = subprocess.run([program['program_name']] + str(problem_size).split(), capture_output=True).stdout.decode('utf-8')
             result = re.search('(?<=' + program['time_token'] + ').\S*', output).group(0).strip()
             print(result)
             results.append(float(result))
@@ -102,12 +108,16 @@ def calculate_speedup(baseline_mean, test_times):
     return speedup_list
 
 
-baseline_results = collect_seq_data(sieve)
-#baseline_mean = sum(baseline_results)/len(baseline_results)
+# Uncomment this to compare sieve and sieve1
+#baseline_results = collect_seq_data(sieve, [100000, 200000, 300000])
+#sieve1_results = collect_seq_data(sieve1, [100000, 200000, 300000])
 
-sieve1_results = collect_seq_data(sieve1)
 
-#sieve2_speedups = calculate_speedup(baseline_mean, sieve_results)
+sieve1_results = collect_seq_data(sieve1, [500000000, 1000000000, 1500000000])
+baseline_mean = sum(sieve1_results)/len(sieve1_results)
+
+sieve2_results = collect_data(sieve2)
+sieve2_speedups = calculate_speedup(baseline_mean, sieve2_results)
 
 seq_data = pd.DataFrame({
     "Problem Size": [100000, 200000, 300000],
@@ -115,22 +125,22 @@ seq_data = pd.DataFrame({
     "Sieve1": sieve1_results
 })
 
-"""
+
 data = pd.DataFrame({
     "Threads": [i for i in range(1, len(perm_speedups)+1)],
     "Sieve1 Speedup (%)": perm_speedups,
     "Baseline Parallelized Speedup (%)": baselineP_speedups,
     "Permuted Parallelized Speedup (%)": permP_speedups
 })
-"""
+
 
 filename = 'sieve'
-data.to_csv(filename + '.csv', index = False)
+seq_data.to_csv(filename + '.csv', index = False)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-ax.plot(data['Problem Size'], data['Sieve'], label = 'Permuted')
-ax.plot(data['Problem Size'], data['Sieve1'], label = 'Baseline Parallelized')
+ax.plot(seq_data['Problem Size'], seq_data['Sieve'], label = 'Sieve')
+ax.plot(seq_data['Problem Size'], seq_data['Sieve1'], label = 'Sieve1')
 
 plt.xlabel('Problem Size')
 plt.ylabel('Execution Time (s)')
@@ -138,7 +148,7 @@ plt.ylabel('Execution Time (s)')
 #plot_multi(data, figsize=(10, 5))
 #plt.xticks(np.arange(8), np.arange(1, 9))
 #plt.subplots_adjust(right=0.8)
-plt.title('Sieve' + ' Statistics')
+plt.title('SeqSieve' + ' Statistics')
 plt.legend()
 plt.savefig('Sieve' + '.png')
 plt.show()    
