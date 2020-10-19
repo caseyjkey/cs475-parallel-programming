@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "timer.h"
-#include <omp.h>
 
 int main(int argc, char **argv) {
 
@@ -59,19 +58,43 @@ int main(int argc, char **argv) {
    // We want to skip the value 1 (results start from 2)
    mark[0] = 1;
 
-   // k is the first prime
-   //int k, index;
-   //k = 3; index = 3;
-
-   // Can't compute sqrt(problem_size) implicitly due to OpenMP
+   count = 1;
    long sqrt_p_size = sqrt(problem_size);
-    
-   #pragma omp parallel for
    for (int k = 3; k <= sqrt_p_size; k += 2) { // Iterate to sqrt(n)
-        for (int prime = k*k; prime <= problem_size; prime += 2*k) mark[prime/2] = 1;
+        // We only want to find primes less than sqrt(N)
+        // We stride by 2*k because odd + odd = even
+        // And odd + even = odd, thereby skipping all even multiples
+        // All primes are odd aside from 2
+        #pragma omp parallel for
+        for (int prime = k*k; prime <= sqrt_p_size; prime += 2*k) {
+            mark[prime/2] = 1;
+            ++count;
+        }
+        
         // Get next odd prime (unmarked value)
-        while (mark[k/2]) k += 2;
+        while (mark[k/2]) k += 2; 
    }
+
+
+   /*number of primes*/
+   // Count starts from 1 to include 2
+   // i starts from 3 so that we only count odds
+   printf("There are %ld primes for sqrt(N).\n", count);
+   int* primes = (int *) malloc(count * sizeof(int));
+   primes[0] = 2; // Our algorithm doesn't include 2 because it's even
+
+   count = 1;
+   for(i = 3; i <= sqrt_p_size; i+=2){
+        if(mark[i/2] == 0) {
+        	printf("\t prime %ld\n", i );
+            primes
+        }
+   }
+
+   
+   /* end of preamble */
+
+   free(primes);
 
    /* stop timer */
    stop_timer();
@@ -92,7 +115,7 @@ int main(int argc, char **argv) {
    printf("First three primes:");
    j = 1;
    printf("%d ", 2);
-   for ( i=3 ; i <= problem_size && j < 3; i+=2 ) {
+   for ( i=3 ; i <= problem_size && j < 10; i+=2 ) {
       if (mark[i/2]==0){
             printf("%ld ", i);
             ++j;

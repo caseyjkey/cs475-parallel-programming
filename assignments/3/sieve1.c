@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
    else
        N = (N/2 + 1);
 
-   // +1 for null character 
+   // +1 for null character (but it's not a string?) 
    size = (N+1)*sizeof(char);
    mark = (char *)malloc(size);
 

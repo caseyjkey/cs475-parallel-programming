@@ -66,8 +66,8 @@ int main(int argc, char **argv) {
    // Can't compute sqrt(problem_size) implicitly due to OpenMP
    long sqrt_p_size = sqrt(problem_size);
     
-   #pragma omp parallel for
    for (int k = 3; k <= sqrt_p_size; k += 2) { // Iterate to sqrt(n)
+        #pragma omp parallel for
         for (int prime = k*k; prime <= problem_size; prime += 2*k) mark[prime/2] = 1;
         // Get next odd prime (unmarked value)
         while (mark[k/2]) k += 2;
