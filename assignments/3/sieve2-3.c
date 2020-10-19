@@ -63,43 +63,15 @@ int main(int argc, char **argv) {
    //int k, index;
    //k = 3; index = 3;
 
-       
+   // Can't compute sqrt(problem_size) implicitly due to OpenMP
+   long sqrt_p_size = sqrt(problem_size);
+    
    for (int k = 3; k <= sqrt_p_size; k += 2) { // Iterate to sqrt(n)
         #pragma omp parallel for
-        for (int prime = k*k; prime <= sqrt_p_size; prime += 2*k) mark[prime/2] = 1;
+        for (int prime = k*k; prime <= problem_size; prime += 2*k) mark[prime/2] = 1;
         // Get next odd prime (unmarked value)
         while (mark[k/2]) k += 2;
    }
-
-   /*number of primes*/
-   // Count and i are magic numbers
-   count = 1;
-   for(i = 2; i <= sqrt_p_size; i+=1){
-        if(mark[i] == 0) {
-        	 printf("\t prime %ld  \n", i/2 );
-        	++count;
-        }
-
-   }
-
-   int* primes = (int*) malloc(count * sizeof(int))
-
-   printf("\n\n\n Printing all rpimes found in mark[]\n");
-   int index = 0;
-   for ( i=3 ; i <= problem_size; i+=2 ) {
-      if (mark[i/2]==0){
-            printf("%ld ", i/2);
-            primes[index] = i/2;
-            ++index;
-      }
-   }
-
-   print("Number of primes from preamble: %d\n", index+1);
-
-   /* end of preamble */
-
-
-   free(primes);
 
    /* stop timer */
    stop_timer();
