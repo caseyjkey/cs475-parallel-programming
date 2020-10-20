@@ -17,7 +17,7 @@ sieve2: sieve2.c $(OBJS)
 	$(CC) $(FLAGS)  -o $@ $< $(OBJS) $(MATHFLAGS)
 
 sieve3: sieve3.c $(OBJS)
-	$(CC) $(FLAGS)  -o $@ $< $(OBJS) $(MATHFLAGS)
+	$(CC) $(SEQFLAGS)  -o $@ $< $(OBJS) $(MATHFLAGS)
 
 timer.o: timer.c
 	$(CC) -O3 -o $@ -c $<
