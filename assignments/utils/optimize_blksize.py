@@ -100,7 +100,7 @@ def calculate_speedup(baseline_mean, test_times):
 
 BLK = [100,100000,500000,1000000,2000000]
 #sizes = [500000 , 1000000, 1500000]
-sizes = [500000000, 1000000000, 1500000000] #500mil, 1bil, 1.5bil
+sizes = [50000000, 100000000, 150000000] #500mil, 1bil, 1.5bil
 
 #sieve1_results = collect_seq_data(sieve1, sizes)
 #baseline_mean = sum(sieve1_results)/len(sieve1_results)
@@ -114,18 +114,18 @@ sieve3_results = collect_seq_data(sieve3, sizes, BLK)
 print(f"len(BLK) = {len(BLK)}, data: {len([datum[2] for datum in sieve3_results if datum[0] == sizes[0]])}")
 data = pd.DataFrame({
     "BLKSIZE": BLK,
-    "500K 100": [datum[2] for datum in sieve3_results if datum[0] == sizes[0]], 
-    "500K 100K": [datum[2] for datum in sieve3_results if datum[0] == sizes[0]], 
-    "500K 500K": [datum[2] for datum in sieve3_results if datum[0] == sizes[0]],
-    #"500K 2000K": [datum[2] for datum in sieve3_results if datum[0] == sizes[0] and datum[1] == BLK[4]], 
-    "1000K 100": [datum[2] for datum in sieve3_results if datum[0] == sizes[1]],
-    "1000K 100K": [datum[2] for datum in sieve3_results if datum[0] == sizes[1]],
-    "1000K 500K": [datum[2] for datum in sieve3_results if datum[0] == sizes[1]],
+    "500K": [datum[2] for datum in sieve3_results if datum[0] == sizes[0]], 
+    #"500K 100K": [datum[2] for datum in sieve3_results if datum[0] == sizes[0]], 
+    #"500K 500K": [datum[2] for datum in sieve3_results if datum[0] == sizes[0]],
+    #"500K 2000K": [datum[2] for datum in sieve3_results if datum[0] == sizes[0]], 
+    "1000K": [datum[2] for datum in sieve3_results if datum[0] == sizes[1]],
+    #"1000K 100K": [datum[2] for datum in sieve3_results if datum[0] == sizes[1]],
+    #"1000K 500K": [datum[2] for datum in sieve3_results if datum[0] == sizes[1]],
     #"1000K 1000K": [datum[2] for datum in sieve3_results if datum[0] == sizes[1] and datum[1] == BLK[3]],
     #"1000K 2000K": [datum[2] for datum in sieve3_results if datum[0] == sizes[1] and datum[1] == BLK[4]],
-    "1500K 100": [datum[2] for datum in sieve3_results if datum[0] == sizes[2]],
-    "1500K 100K": [datum[2] for datum in sieve3_results if datum[0] == sizes[2]],
-    "1500K 500K": [datum[2] for datum in sieve3_results if datum[0] == sizes[2]]
+    "1500K": [datum[2] for datum in sieve3_results if datum[0] == sizes[2]]
+    #"1500K 100K": [datum[2] for datum in sieve3_results if datum[0] == sizes[2]],
+    #"1500K 500K": [datum[2] for datum in sieve3_results if datum[0] == sizes[2]]
     #"1500K 1000K": [datum[2] for datum in sieve3_results if datum[0] == sizes[2] and datum[1] == BLK[3]],
     #"1500K 2000K": [datum[2] for datum in sieve3_results if datum[0] == sizes[2] and datum[1] == BLK[4]]
 
@@ -137,36 +137,14 @@ data.to_csv(filename + '.csv', index = False)
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-plt.title('sieve3 500K Statistics')
-ax.scatter(data['BLKSIZE'], data['500K 100'], label = '100')
-ax.scatter(data['BLKSIZE'], data['500K 100K'], label = '100K')
-ax.scatter(data['BLKSIZE'], data['500K 500K'], label = '500K')
+plt.title('sieve3 Statistics')
+ax.scatter(data['BLKSIZE'], data['500K'], label = '500K')
+ax.scatter(data['BLKSIZE'], data['1000K'], label = '1000K')
+ax.scatter(data['BLKSIZE'], data['1500K'], label = '1500K')
 plt.xlabel('BLKSIZE')
 plt.ylabel('Execution Time (s)')
 plt.legend()
-plt.savefig('sieve3-500K.png')
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-plt.title('sieve3 1000K Statistics')
-ax.scatter(data['BLKSIZE'], data['1000K 100'], label = '2-1')
-ax.scatter(data['BLKSIZE'], data['1000K 100K'], label = '2-2')
-ax.scatter(data['BLKSIZE'], data['1000K 500K'], label = '2-3')
-plt.xlabel('BLKSIZE')
-plt.ylabel('Execution Time (s)')
-plt.legend()
-plt.savefig('sieve3-1000K.png')
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-plt.title('sieve3 1500K Statistics')
-ax.scatter(data['BLKSIZE'], data['1500K 100'], label = '2-1')
-ax.scatter(data['BLKSIZE'], data['1500K 100K'], label = '2-2')
-ax.scatter(data['BLKSIZE'], data['1500K 500K'], label = '2-3')
-plt.xlabel('BLKSIZE')
-plt.ylabel('Execution Time (s)')
-plt.legend()
-plt.savefig('sieve3-1500K.png')
+plt.savefig('sieve3.png')
 
 #plt.show()    
 

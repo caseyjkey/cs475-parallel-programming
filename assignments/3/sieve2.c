@@ -66,10 +66,11 @@ int main(int argc, char **argv) {
    // Can't compute sqrt(problem_size) implicitly due to OpenMP
    long sqrt_p_size = sqrt(problem_size);
     
-   for (int k = 3; k <= sqrt_p_size; k += 2) { // Iterate to sqrt(n)
+   for (int k = 3; k <= sqrt_p_size;) { // Iterate to sqrt(n)
         #pragma omp parallel for
         for (int prime = k*k; prime <= problem_size; prime += 2*k) mark[prime/2] = 1;
         // Get next odd prime (unmarked value)
+        k += 2;
         while (mark[k/2]) k += 2;
    }
 
@@ -92,7 +93,7 @@ int main(int argc, char **argv) {
    printf("First three primes:");
    j = 1;
    printf("%d ", 2);
-   for ( i=3 ; i <= problem_size && j < 3; i+=2 ) {
+   for ( i=3 ; i <= problem_size && j < 3 ; i+=2 ) {
       if (mark[i/2]==0){
             printf("%ld ", i);
             ++j;
