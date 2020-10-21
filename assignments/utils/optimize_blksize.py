@@ -54,16 +54,21 @@ def collect_data(program, sizes):
     for threads in range(1, 9):
         print("Threads:", threads)
         os.environ['OMP_NUM_THREADS'] = str(threads)
-        for size in sizes:
-            results = []
-            for i in range(0, 8): 
-                output = subprocess.run([program['program_name']] + str(size).split(), capture_output=True).stdout.decode('utf-8')
-                result = re.search('(?<=' + program['time_token'] + ').\S*', output).group(0).strip()
-                print((threads, size, result))
-                results.append(float(result))
-            results.remove(max(results))
-            results.remove(min(results))
-            mean = sum(results)/len(results)
+        for problem_size in sizes:
+            print("Problem size:", problem_size)
+            for blksize in BLK:
+                print("Block size:", blksize)
+                results = []
+                for i in range(0, 8): 
+                    output = subprocess.run([program['program_name']] + [str(problem_size), str(blksize)], capture_output=True).stdout.decode('utf-8')
+                    print("result: ", output)
+                    result = re.search('(?<=' + time_token + ').\S*', output).group(0).strip()
+                    print(result)
+                    results.append(float(result))
+                results.remove(max(results))
+                results.remove(min(results))
+                mean = sum(results)/len(results)
+                problem_size_means.append((problem_size, blksize, mean))
             thread_means.append((threads, size, mean))
     return thread_means 
 
@@ -98,7 +103,7 @@ def calculate_speedup(baseline_mean, test_times):
         speedup_list.append((datum[0], datum[1], speedup))
     return speedup_list
 
-BLK = [10, 100, 1000, 10000, 100000]
+BLK = [i for i in range(50000, 200000, 10000)]
 #sizes = [500000 , 1000000, 1500000]
 sizes = [500000000, 1000000000, 1500000000] #500mil, 1bil, 1.5bil
 

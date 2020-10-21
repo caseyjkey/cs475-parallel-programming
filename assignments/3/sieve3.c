@@ -19,15 +19,14 @@
 int FMIB(long index, long prime) {
     int result = index;
 
-    if (index == prime)
+    if (index == prime) {
         result += 2 * prime;
-
-    else {
+        return result;
+    } else {
         long remainder = index % prime;
         if (remainder != 0) 
             result = index - remainder + prime;
     }
-
     if (result % 2 == 0)
         result += prime;
 
@@ -37,7 +36,7 @@ int FMIB(long index, long prime) {
 int main(int argc, char **argv) {
 
    long N  = 100;
-   long BLKSIZE = 100000;
+   long BLKSIZE = 200000;
 
    char *mark;
 
@@ -101,9 +100,9 @@ int main(int argc, char **argv) {
    count = 1;                       // Count starts from 1 to account for  2
    for(i = 3; i <= sqrt_N; i+=2){   // i starts from 3 as we only count odds
         if(mark[i/2] == 0) {
-            primes[count] = i;
+            primes[count++] = i;
             //printf("primes[%d] = %d\n", count, i);
-            count++;
+            //count++;
         }
    }
 
@@ -115,7 +114,7 @@ int main(int argc, char **argv) {
         for (int j = 1; j < count; j++) {  // skip primes[0] because that's evens
             //printf("prime: %ld\n", primes[j]);
            prime = primes[j];
-           // printf("FMIB(%d, %ld) = %ld, i = %ld\n", ii, prime, FMIB(ii, prime));
+           //printf("FMIB(%d, %ld) = %ld\n", ii, prime, FMIB(ii, prime));
            for (long i = FMIB(ii, prime); i <= minn(ii+BLKSIZE, p_size); i += 2*prime) {
                //printf("mark[%ld] = 1\n", i/2); 
                mark[i/2] = 1;

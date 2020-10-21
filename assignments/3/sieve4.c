@@ -19,15 +19,14 @@
 int FMIB(long index, long prime) {
     int result = index;
 
-    if (index == prime)
+    if (index == prime) {
         result = index + 2 * prime;
-
-    else {
+        return result;
+    } else {
         long remainder = index % prime;
         if (remainder != 0) 
             result = index - remainder + prime;
     }
-
     if (result % 2 == 0)
         result += prime;
 
@@ -86,6 +85,7 @@ int main(int argc, char **argv) {
         // We stride by 2*k because odd + odd = even
         // And odd + even = odd, thereby skipping all even multiples
         // All primes are odd aside from 2
+        #pragma omp parallel for
         for (long prime = k*k; prime <= sqrt_N; prime += 2*k) mark[prime/2] = 1;
         
         // Get next odd prime (unmarked value)
@@ -100,14 +100,14 @@ int main(int argc, char **argv) {
    count = 1;                       // Count starts from 1 to account for  2
    for(i = 3; i <= sqrt_N; i+=2){   // i starts from 3 as we only count odds
         if(mark[i/2] == 0) {
-            primes[count] = i;
+            primes[count++] = i;
             //printf("primes[%d] = %d\n", count, i);
-            count++;
         }
    }
 
 
    /* end of preamble */
+
    #pragma omp parallel for
    for (int ii = sqrt_N; ii < p_size; ii += BLKSIZE) {
         //printf("block start: %d, end: %d\n", ii, ii+BLKSIZE);  
