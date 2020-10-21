@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
    mark[0] = 1;
 
    long sqrt_N = sqrt(N);
-   for (long k = 3; k <= sqrt_N; k += 2) { // Iterate to sqrt(n)
+   for (long k = 3; k <= sqrt_N;) { // Iterate to sqrt(n)
         // We only want to find primes less than sqrt(N)
         // We stride by 2*k because odd + odd = even
         // And odd + even = odd, thereby skipping all even multiples
@@ -70,6 +70,7 @@ int main(int argc, char **argv) {
         for (long prime = k*k; prime <= sqrt_N; prime += 2*k) mark[prime] = 1;
         
         // Get next odd prime (unmarked value)
+        k += 2;
         while (mark[k]) k += 2;
    }
 
@@ -89,6 +90,7 @@ int main(int argc, char **argv) {
 
 
    /* end of preamble */
+   printf("BLKSIZE: %ld\n", BLKSIZE);
 
    int prime;
    for (int j = 0; j < count; j++) {
@@ -115,10 +117,10 @@ int main(int argc, char **argv) {
    /* print results */
    printf("First three primes:");
    j = 1;
-   printf("%d ", 2);
+   printf("%d, ", 2);
    for ( i=3 ; i <= N && j < 3; i+=2 ) {
       if (mark[i]==0){
-            printf("%ld ", i);
+            printf("%ld, ", i);
             ++j;
       }
    }

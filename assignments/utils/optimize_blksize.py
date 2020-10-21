@@ -114,16 +114,16 @@ sieve3_results = collect_seq_data(sieve3, sizes, BLK)
 print(f"len(BLK) = {len(BLK)}, data: {len([datum[2] for datum in sieve3_results if datum[0] == sizes[0]])}")
 data = pd.DataFrame({
     "BLKSIZE": BLK,
-    "500K": [datum[2] for datum in sieve3_results if datum[0] == sizes[0]], 
+    "500M": [datum[2] for datum in sieve3_results if datum[0] == sizes[0]], 
     #"500K 100K": [datum[2] for datum in sieve3_results if datum[0] == sizes[0]], 
     #"500K 500K": [datum[2] for datum in sieve3_results if datum[0] == sizes[0]],
     #"500K 2000K": [datum[2] for datum in sieve3_results if datum[0] == sizes[0]], 
-    "1000K": [datum[2] for datum in sieve3_results if datum[0] == sizes[1]],
+    "1000M": [datum[2] for datum in sieve3_results if datum[0] == sizes[1]],
     #"1000K 100K": [datum[2] for datum in sieve3_results if datum[0] == sizes[1]],
     #"1000K 500K": [datum[2] for datum in sieve3_results if datum[0] == sizes[1]],
     #"1000K 1000K": [datum[2] for datum in sieve3_results if datum[0] == sizes[1] and datum[1] == BLK[3]],
     #"1000K 2000K": [datum[2] for datum in sieve3_results if datum[0] == sizes[1] and datum[1] == BLK[4]],
-    "1500K": [datum[2] for datum in sieve3_results if datum[0] == sizes[2]]
+    "1500M": [datum[2] for datum in sieve3_results if datum[0] == sizes[2]]
     #"1500K 100K": [datum[2] for datum in sieve3_results if datum[0] == sizes[2]],
     #"1500K 500K": [datum[2] for datum in sieve3_results if datum[0] == sizes[2]]
     #"1500K 1000K": [datum[2] for datum in sieve3_results if datum[0] == sizes[2] and datum[1] == BLK[3]],
@@ -137,14 +137,29 @@ data.to_csv(filename + '.csv', index = False)
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-plt.title('sieve3 Statistics')
-ax.scatter(data['BLKSIZE'], data['500K'], label = '500K')
-ax.scatter(data['BLKSIZE'], data['1000K'], label = '1000K')
-ax.scatter(data['BLKSIZE'], data['1500K'], label = '1500K')
+plt.title('sieve3 500M Statistics')
+ax.scatter(data['BLKSIZE'], data['500M'], label = '500M')
 plt.xlabel('BLKSIZE')
 plt.ylabel('Execution Time (s)')
-plt.legend()
-plt.savefig('sieve3.png')
+#plt.legend()
+plt.savefig('sieve3-500M.png')
 
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.title('sieve3i 1000M Statistics')
+ax.scatter(data['BLKSIZE'], data['1000M'], label = '1000M')
+plt.xlabel('BLKSIZE')
+plt.ylabel('Execution Time (s)')
+#plt.legend()
+plt.savefig('sieve3-1000M.png')
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.title('sieve3 1500M Statistics')
+ax.scatter(data['BLKSIZE'], data['1500M'], label = '1500M')
+plt.xlabel('BLKSIZE')
+plt.ylabel('Execution Time (s)')
+#plt.legend()
+plt.savefig('sieve3-1500M.png')
 #plt.show()    
 
