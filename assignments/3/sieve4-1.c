@@ -108,13 +108,15 @@ int main(int argc, char **argv) {
 
 
    /* end of preamble */
+   long prime;
    #pragma omp parallel for
    for (int ii = sqrt_N; ii < p_size; ii += BLKSIZE) {
         //printf("block start: %d, end: %d\n", ii, ii+BLKSIZE);  
         for (int j = 1; j < count; j++) {  // skip primes[0] because that's evens
             //printf("prime: %ld\n", primes[j]);
+           prime = primes[j];
            // printf("FMIB(%d, %ld) = %ld, i = %ld\n", ii, prime, FMIB(ii, prime));
-           for (long i = FMIB(ii, primes[j]); i <= minn(ii+BLKSIZE, p_size); i += 2*primes[j]) {
+           for (long i = FMIB(ii, prime); i <= minn(ii+BLKSIZE, p_size); i += 2*prime) {
                //printf("mark[%ld] = 1\n", i/2); 
                mark[i/2] = 1;
            }

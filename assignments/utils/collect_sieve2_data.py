@@ -14,20 +14,20 @@ sieve1 = {
     'time_token': 'time ='
 }
 
-sieve2 = {
-    'program_name': './sieve2-1',
+sieve3 = {
+    'program_name': './sieve3-1',
     'arguments': '100',
     'time_token': 'time ='
 }
 
-sieve2_1 = {
-    'program_name': './sieve2-2',
+sieve3_1 = {
+    'program_name': './sieve3-2',
     'arguments': '100',
     'time_token': 'time ='
 }
 
-sieve2_2 = {
-    'program_name': './sieve2-3',
+sieve3_2 = {
+    'program_name': './sieve3-3',
     'arguments': '100',
     'time_token': 'time ='
 }
@@ -120,67 +120,67 @@ sizes = [500000000, 1000000000, 1500000000] #500mil, 1bil, 1.5bil
 sieve1_results = collect_seq_data(sieve1, sizes)
 baseline_mean = sum(sieve1_results)/len(sieve1_results)
 
-sieve2_results = collect_data(sieve2, sizes)
-sieve2_speedups = calculate_speedup(baseline_mean, sieve2_results)
+sieve3_results = collect_data(sieve3, sizes)
+sieve3_speedups = calculate_speedup(baseline_mean, sieve3_results)
 
-sieve2_1_results = collect_data(sieve2_1, sizes)
-sieve2_1_speedups = calculate_speedup(baseline_mean, sieve2_1_results)
+sieve3_1_results = collect_data(sieve3_1, sizes)
+sieve3_1_speedups = calculate_speedup(baseline_mean, sieve3_1_results)
 
-sieve2_2_results = collect_data(sieve2_2, sizes)
-sieve2_2_speedups = calculate_speedup(baseline_mean, sieve2_2_results)
+sieve3_2_results = collect_data(sieve3_2, sizes)
+sieve3_2_speedups = calculate_speedup(baseline_mean, sieve3_2_results)
 
 
-print(sieve2_speedups[0])
+print(sieve3_speedups[0])
 data = pd.DataFrame({
     "Threads": [i for i in range(1, 9)],
-    "0.5B 2-1": [speedup[2] for speedup in sieve2_speedups if speedup[1] == sizes[0]], 
-    "1.0B 2-1": [speedup[2] for speedup in sieve2_speedups if speedup[1] == sizes[1]],
-    "1.5B 2-1": [speedup[2] for speedup in sieve2_speedups if speedup[1] == sizes[2]],
-    "0.5B 2-2": [speedup[2] for speedup in sieve2_1_speedups if speedup[1] == sizes[0]], 
-    "1.0B 2-2": [speedup[2] for speedup in sieve2_1_speedups if speedup[1] == sizes[1]],
-    "1.5B 2-2": [speedup[2] for speedup in sieve2_1_speedups if speedup[1] == sizes[2]],
-    "0.5B 2-3": [speedup[2] for speedup in sieve2_2_speedups if speedup[1] == sizes[0]],
-    "1.0B 2-3": [speedup[2] for speedup in sieve2_2_speedups if speedup[1] == sizes[1]],
-    "1.5B 2-3": [speedup[2] for speedup in sieve2_2_speedups if speedup[1] == sizes[2]]
+    "0.5B 3-1": [speedup[2] for speedup in sieve3_speedups if speedup[1] == sizes[0]], 
+    "1.0B 3-1": [speedup[2] for speedup in sieve3_speedups if speedup[1] == sizes[1]],
+    "1.5B 3-1": [speedup[2] for speedup in sieve3_speedups if speedup[1] == sizes[2]],
+    "0.5B 3-2": [speedup[2] for speedup in sieve3_1_speedups if speedup[1] == sizes[0]], 
+    "1.0B 3-2": [speedup[2] for speedup in sieve3_1_speedups if speedup[1] == sizes[1]],
+    "1.5B 3-2": [speedup[2] for speedup in sieve3_1_speedups if speedup[1] == sizes[2]],
+    "0.5B 3-3": [speedup[2] for speedup in sieve3_2_speedups if speedup[1] == sizes[0]],
+    "1.0B 3-3": [speedup[2] for speedup in sieve3_2_speedups if speedup[1] == sizes[1]],
+    "1.5B 3-3": [speedup[2] for speedup in sieve3_2_speedups if speedup[1] == sizes[2]]
 
 })
 
 
-filename = 'sieve2'
+filename = 'sieve3'
 data.to_csv(filename + '.csv', index = False)
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-plt.title('sieve2 0.5B Statistics')
+plt.title('sieve3 0.5B Statistics')
 ax.scatter(data['Threads'], data['0.5B 2-1'], label = '2-1')
 ax.scatter(data['Threads'], data['0.5B 2-2'], label = '2-2')
 ax.scatter(data['Threads'], data['0.5B 2-3'], label = '2-3')
 plt.xlabel('Threads')
 plt.ylabel('Speedup (%)')
 plt.legend()
-plt.savefig('sieve2-test1.png')
+plt.savefig('sieve3-test1.png')
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-plt.title('sieve2 1.0B Statistics')
+plt.title('sieve3 1.0B Statistics')
 ax.scatter(data['Threads'], data['1.0B 2-1'], label = '2-1')
 ax.scatter(data['Threads'], data['1.0B 2-2'], label = '2-2')
 ax.scatter(data['Threads'], data['1.0B 2-3'], label = '2-3')
 plt.xlabel('Threads')
 plt.ylabel('Speedup (%)')
 plt.legend()
-plt.savefig('sieve2-test2.png')
+plt.savefig('sieve3-test2.png')
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-plt.title('sieve2 1.5B Statistics')
+plt.title('sieve3 1.5B Statistics')
 ax.scatter(data['Threads'], data['1.5B 2-1'], label = '2-1')
 ax.scatter(data['Threads'], data['1.5B 2-2'], label = '2-2')
 ax.scatter(data['Threads'], data['1.5B 2-3'], label = '2-3')
 plt.xlabel('Threads')
 plt.ylabel('Speedup (%)')
 plt.legend()
-plt.savefig('sieve2-test3.png')
+plt.savefig('sieve3-test3.png')
 
 #plt.show()    
 

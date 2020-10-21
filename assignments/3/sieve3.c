@@ -17,12 +17,21 @@
 #define minn(x,y) (((x) <= (y)) ? (x) : (y))
 
 int FMIB(long index, long prime) {
-    if (index ==  prime)
-        return index + prime;
-    long remainder = index % prime;
-    if (remainder)
-        return index - remainder + prime;
-    return index;
+    int result = index;
+
+    if (index == prime)
+        result += 2 * prime;
+
+    else {
+        long remainder = index % prime;
+        if (remainder != 0) 
+            result = index - remainder + prime;
+    }
+
+    if (result % 2 == 0)
+        result += prime;
+
+    return result;
 }
 
 int main(int argc, char **argv) {
@@ -48,7 +57,7 @@ int main(int argc, char **argv) {
 
    /* Start Timer */
 
-   initialize_timer ();
+   initialize_timer();
    start_timer();
 
    // Only store odds
@@ -93,6 +102,7 @@ int main(int argc, char **argv) {
    for(i = 3; i <= sqrt_N; i+=2){   // i starts from 3 as we only count odds
         if(mark[i/2] == 0) {
             primes[count] = i;
+            //printf("primes[%d] = %d\n", count, i);
             count++;
         }
    }
@@ -101,9 +111,13 @@ int main(int argc, char **argv) {
    /* end of preamble */
    long prime;
    for (int ii = sqrt_N; ii < p_size; ii += BLKSIZE) {
+        //printf("block start: %d, end: %d\n", ii, ii+BLKSIZE);  
         for (int j = 1; j < count; j++) {  // skip primes[0] because that's evens
+            //printf("prime: %ld\n", primes[j]);
            prime = primes[j];
+           // printf("FMIB(%d, %ld) = %ld, i = %ld\n", ii, prime, FMIB(ii, prime));
            for (long i = FMIB(ii, prime); i <= minn(ii+BLKSIZE, p_size); i += 2*prime) {
+               //printf("mark[%ld] = 1\n", i/2); 
                mark[i/2] = 1;
            }
        }
@@ -125,7 +139,7 @@ int main(int argc, char **argv) {
    printf("First three primes:");
    j = 1;
    printf("%d ", 2);
-   for ( i=3 ; i <= p_size; i+=2 ) {
+   for ( i=3 ; i <= p_size && j < 3; i+=2 ) {
       if (mark[i/2]==0){
             printf("%ld ", i);
             ++j;
