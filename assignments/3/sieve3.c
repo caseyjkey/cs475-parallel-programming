@@ -90,8 +90,6 @@ int main(int argc, char **argv) {
 
 
    /* end of preamble */
-   printf("BLKSIZE: %ld\n", BLKSIZE);
-
    int prime;
    for (int j = 0; j < count; j++) {
        prime = primes[j];
