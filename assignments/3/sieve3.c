@@ -44,10 +44,21 @@ int main(int argc, char **argv) {
    if ( argc > 1 ) N  = atoi(argv[1]);
    if ( argc > 2 ) BLKSIZE = atoi(argv[2]);
 
+   long p_size = N;
+
    /* Start Timer */
 
    initialize_timer ();
    start_timer();
+
+   // Only store odds
+   // Half memory if N is even
+   // Half memory +1 if N is odd
+   if (N % 2 == 0)
+       N = (N/2);
+   else
+       N = (N/2 + 1);
+
 
    // +1 for null character 
    size = (N+1)*sizeof(char);
@@ -60,18 +71,18 @@ int main(int argc, char **argv) {
    // We want to skip the value 1 (results start from 2)
    mark[0] = 1;
 
-   long sqrt_N = sqrt(N);
+   long sqrt_N = sqrt(p_size);
    for (long k = 3; k <= sqrt_N;) { // Iterate to sqrt(n)
         // We only want to find primes less than sqrt(N)
         // We stride by 2*k because odd + odd = even
         // And odd + even = odd, thereby skipping all even multiples
         // All primes are odd aside from 2
         #pragma omp parallel for
-        for (long prime = k*k; prime <= sqrt_N; prime += 2*k) mark[prime] = 1;
+        for (long prime = k*k; prime <= sqrt_N; prime += 2*k) mark[prime/2] = 1;
         
         // Get next odd prime (unmarked value)
         k += 2;
-        while (mark[k]) k += 2;
+        while (mark[k/2]) k += 2;
    }
 
 
@@ -80,7 +91,7 @@ int main(int argc, char **argv) {
    primes[0] = 2;                   // Don't include 2 because it's even
    count = 1;                       // Count starts from 1 to account for  2
    for(i = 3; i <= sqrt_N; i+=2){   // i starts from 3 as we only count odds
-        if(mark[i] == 0) {
+        if(mark[i/2] == 0) {
             primes[count] = i;
             count++;
         }
@@ -89,11 +100,11 @@ int main(int argc, char **argv) {
 
    /* end of preamble */
    long prime;
-   for (int ii = sqrt_N; ii < N; ii += BLKSIZE) {
-        for (int j = 0; j < count; j++) {
+   for (int ii = sqrt_N; ii < p_size; ii += BLKSIZE) {
+        for (int j = 1; j < count; j++) {  // skip primes[0] because that's evens
            prime = primes[j];
-           for (long i = FMIB(ii, prime); i <= minn(ii+BLKSIZE, N); i += prime) {
-               mark[i] = 1;
+           for (long i = FMIB(ii, prime); i <= minn(ii+BLKSIZE, p_size); i += 2*prime) {
+               mark[i/2] = 1;
            }
        }
    } 
@@ -105,17 +116,17 @@ int main(int argc, char **argv) {
    /*number of primes*/
    // Count and i are magic numbers
    count = 1;
-   for(i = 3; i <= N; i+=2){
+   for(i = 2; i <= N; i+=1){
         if(mark[i] == 0) ++count;
    }
 
-   printf("There are %ld primes less than or equal to %ld\n", count, N);
+   printf("There are %ld primes less than or equal to %ld\n", count, p_size);
    /* print results */
    printf("First three primes:");
    j = 1;
    printf("%d ", 2);
-   for ( i=3 ; i <= N && j < 3; i+=2 ) {
-      if (mark[i]==0){
+   for ( i=3 ; i <= p_size; i+=2 ) {
+      if (mark[i/2]==0){
             printf("%ld ", i);
             ++j;
       }
@@ -124,9 +135,9 @@ int main(int argc, char **argv) {
 
    printf("Last three primes:");
    j = 0;
-   n=(N%2?N:N-1);
+   n=(p_size%2?p_size:p_size-1);
    for (i = n; i > 1 && j < 3; i-=2){
-     if (mark[i]==0){
+     if (mark[i/2]==0){
         printf("%ld ", i);
         j++;
      }

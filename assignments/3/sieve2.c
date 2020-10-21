@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
     
    for (int k = 3; k <= sqrt_p_size;) { // Iterate to sqrt(n)
         #pragma omp parallel for
-        for (int prime = k*k; prime <= problem_size; prime += 2*k) mark[prime/2] = 1;
+        for (long prime = k*k; prime <= problem_size; prime += 2*k) mark[prime/2] = 1;
         // Get next odd prime (unmarked value)
         k += 2;
         while (mark[k/2]) k += 2;
