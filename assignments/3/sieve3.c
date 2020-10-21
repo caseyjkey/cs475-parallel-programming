@@ -17,6 +17,8 @@
 #define minn(x,y) (((x) <= (y)) ? (x) : (y))
 
 int FMIB(long index, long prime) {
+    if (index ==  prime)
+        return index + prime;
     long remainder = index % prime;
     if (remainder)
         return index - remainder + prime;
@@ -26,7 +28,7 @@ int FMIB(long index, long prime) {
 int main(int argc, char **argv) {
 
    long N  = 100;
-   long BLKSIZE = 5000;
+   long BLKSIZE = 10;
 
    char *mark;
 
@@ -75,16 +77,16 @@ int main(int argc, char **argv) {
    /*number of primes*/
    long primes[sqrt_N]; // (int *) malloc(count * sizeof(int));
    primes[0] = 2; // Our algorithm doesn't include 2 because it's even
-   
    // Count starts from 1 to include 2
    // i starts from 3 so that we only count odds
    count = 1;
    for(i = 3; i <= sqrt_N; i+=2){
         if(mark[i] == 0) {
+            primes[count] = i;
             count++;
-            primes[i/2] = i;
         }
    }
+
 
    /* end of preamble */
 
@@ -97,7 +99,6 @@ int main(int argc, char **argv) {
            }
        }
    } 
-
 
    /* stop timer */
    stop_timer();
