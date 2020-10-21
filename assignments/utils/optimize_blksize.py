@@ -98,9 +98,9 @@ def calculate_speedup(baseline_mean, test_times):
         speedup_list.append((datum[0], datum[1], speedup))
     return speedup_list
 
-BLK = [100,100000,500000,1000000,2000000]
+BLK = [100000,500000,1000000,2000000]
 #sizes = [500000 , 1000000, 1500000]
-sizes = [50000000, 100000000, 150000000] #500mil, 1bil, 1.5bil
+sizes = [500000000, 1000000000, 1500000000] #500mil, 1bil, 1.5bil
 
 #sieve1_results = collect_seq_data(sieve1, sizes)
 #baseline_mean = sum(sieve1_results)/len(sieve1_results)
