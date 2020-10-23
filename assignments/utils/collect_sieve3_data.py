@@ -9,21 +9,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-time_token: 'time ='
+time_token = 'time ='
 
 sieve1 = {
     'program_name': './sieve1',
 }
 
-sieve2 = {
-    'program_name': './sieve2-1',
-    'time_token': 'time ='
-}
-
 sieve3 = {
     'program_name': './sieve3',
-    'arguments': '10',
-    'time_token': 'time ='
 }
 
 
@@ -88,7 +81,7 @@ def collect_seq_data(program, sizes):
         results = []
         for i in range(0, 8): 
             output = subprocess.run([program['program_name']] + str(problem_size).split(), capture_output=True).stdout.decode('utf-8')
-            result = re.search('(?<=' + program['time_token'] + ').\S*', output).group(0).strip()
+            result = re.search('(?<=' + time_token + ').\S*', output).group(0).strip()
             print(result)
             results.append(float(result))
         results.remove(max(results))
@@ -103,8 +96,9 @@ def calculate_speedup(baseline_mean, test_times):
     speedup_list = []
     # datum = (threads, problem_size, mean_time)
     for datum in test_times:
-        speedup = baseline_mean / datum[2] * 100
-        speedup_list.append((datum[0], datum[1], speedup))
+        print("datum", datum)
+        speedup = baseline_mean / datum * 100
+        speedup_list.append(speedup)
     return speedup_list
 
 
@@ -114,67 +108,27 @@ sizes = [500000000, 1000000000, 1500000000] #500mil, 1bil, 1.5bil
 sieve1_results = collect_seq_data(sieve1, sizes)
 baseline_mean = sum(sieve1_results)/len(sieve1_results)
 
-sieve2_results = collect_data(sieve2, sizes)
-sieve2_speedups = calculate_speedup(baseline_mean, sieve2_results)
+sieve3_results = collect_seq_data(sieve3, sizes)
+sieve3_speedups = calculate_speedup(baseline_mean, sieve3_results)
 
-sieve2_1_results = collect_data(sieve2_1, sizes)
-sieve2_1_speedups = calculate_speedup(baseline_mean, sieve2_1_results)
-
-sieve2_2_results = collect_data(sieve2_2, sizes)
-sieve2_2_speedups = calculate_speedup(baseline_mean, sieve2_2_results)
-
-
-print(sieve2_speedups[0])
 data = pd.DataFrame({
-    "Threads": [i for i in range(1, 9)],
-    "0.5B 2-1": [speedup[2] for speedup in sieve2_speedups if speedup[1] == sizes[0]], 
-    "1.0B 2-1": [speedup[2] for speedup in sieve2_speedups if speedup[1] == sizes[1]],
-    "1.5B 2-1": [speedup[2] for speedup in sieve2_speedups if speedup[1] == sizes[2]],
-    "0.5B 2-2": [speedup[2] for speedup in sieve2_1_speedups if speedup[1] == sizes[0]], 
-    "1.0B 2-2": [speedup[2] for speedup in sieve2_1_speedups if speedup[1] == sizes[1]],
-    "1.5B 2-2": [speedup[2] for speedup in sieve2_1_speedups if speedup[1] == sizes[2]],
-    "0.5B 2-3": [speedup[2] for speedup in sieve2_2_speedups if speedup[1] == sizes[0]],
-    "1.0B 2-3": [speedup[2] for speedup in sieve2_2_speedups if speedup[1] == sizes[1]],
-    "1.5B 2-3": [speedup[2] for speedup in sieve2_2_speedups if speedup[1] == sizes[2]]
+    "Problem Size": sizes,
+    "sieve3": sieve3_speedups
 
 })
 
 
-filename = 'sieve2'
+filename = 'sieve3'
 data.to_csv(filename + '.csv', index = False)
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-plt.title('sieve2 0.5B Statistics')
-ax.scatter(data['Threads'], data['0.5B 2-1'], label = '2-1')
-ax.scatter(data['Threads'], data['0.5B 2-2'], label = '2-2')
-ax.scatter(data['Threads'], data['0.5B 2-3'], label = '2-3')
-plt.xlabel('Threads')
+plt.title('sieve3 vs sieve1 Speedup')
+ax.plot(data['Problem Size'], data['sieve3'], label = 'sieve3')
+plt.xlabel('Problemsize')
 plt.ylabel('Speedup (%)')
 plt.legend()
-plt.savefig('sieve2-test1.png')
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-plt.title('sieve2 1.0B Statistics')
-ax.scatter(data['Threads'], data['1.0B 2-1'], label = '2-1')
-ax.scatter(data['Threads'], data['1.0B 2-2'], label = '2-2')
-ax.scatter(data['Threads'], data['1.0B 2-3'], label = '2-3')
-plt.xlabel('Threads')
-plt.ylabel('Speedup (%)')
-plt.legend()
-plt.savefig('sieve2-test2.png')
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-plt.title('sieve2 1.5B Statistics')
-ax.scatter(data['Threads'], data['1.5B 2-1'], label = '2-1')
-ax.scatter(data['Threads'], data['1.5B 2-2'], label = '2-2')
-ax.scatter(data['Threads'], data['1.5B 2-3'], label = '2-3')
-plt.xlabel('Threads')
-plt.ylabel('Speedup (%)')
-plt.legend()
-plt.savefig('sieve2-test3.png')
+plt.savefig('sieve3-speedup.png')
 
 #plt.show()    
 
