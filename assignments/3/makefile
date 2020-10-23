@@ -3,7 +3,7 @@ OBJS = timer.o
 FLAGS = -O3 -fopenmp
 SEQFLAGS = -O3 
 MATHFLAGS = -lm
-EXEC = sieve sieve1 sieve2 sieve3 sieve4 sieve4-1
+EXEC = sieve sieve1 sieve2 sieve3 sieve4
 
 all: $(EXEC)
 
@@ -20,9 +20,6 @@ sieve3: sieve3.c $(OBJS)
 	$(CC) $(SEQFLAGS)  -o $@ $< $(OBJS) $(MATHFLAGS)
 
 sieve4: sieve4.c $(OBJS)
-	$(CC) $(FLAGS)  -o $@ $< $(OBJS) $(MATHFLAGS)
-
-sieve4-1: sieve4-1.c $(OBJS)
 	$(CC) $(FLAGS)  -o $@ $< $(OBJS) $(MATHFLAGS)
 
 timer.o: timer.c

@@ -36,7 +36,7 @@ int FMIB(long index, long prime) {
 int main(int argc, char **argv) {
 
    long N  = 100;
-   long BLKSIZE = 100000;
+   long BLKSIZE = 400000;
 
    char *mark;
 
@@ -71,7 +71,8 @@ int main(int argc, char **argv) {
    // +1 for null character 
    size = (N+1)*sizeof(char);
    mark = (char *)malloc(size);
-
+   
+   #pragma omp parallel for
    for (i=1; i<=N; i=i+1){
      mark[i]=0;
    }
@@ -100,22 +101,24 @@ int main(int argc, char **argv) {
    count = 1;                       // Count starts from 1 to account for  2
    for(i = 3; i <= sqrt_N; i+=2){   // i starts from 3 as we only count odds
         if(mark[i/2] == 0) {
-            primes[count++] = i;
-            //printf("primes[%d] = %d\n", count, i);
+            primes[count] = i;
+            #pragma omp atomic
+            count++;
+//            printf("primes[%ld] = %ld\n", i/2, i);
         }
-   }
+    } 
 
 
    /* end of preamble */
 
    #pragma omp parallel for
    for (int ii = sqrt_N; ii < p_size; ii += BLKSIZE) {
-        //printf("block start: %d, end: %d\n", ii, ii+BLKSIZE);  
+//        printf("block start: %d, end: %d\n", ii, ii+BLKSIZE);  
         for (int j = 1; j < count; j++) {  // skip primes[0] because that's evens
-            //printf("prime: %ld\n", primes[j]);
-           // printf("FMIB(%d, %ld) = %ld, i = %ld\n", ii, prime, FMIB(ii, prime));
+//            printf("prime: %ld\n", primes[j]);
+//           printf("FMIB(%d, %ld) = %ld, i = %ld\n", ii, primes[j], FMIB(ii, primes[j]));
            for (long i = FMIB(ii, primes[j]); i <= minn(ii+BLKSIZE, p_size); i += 2*primes[j]) {
-               //printf("mark[%ld] = 1\n", i/2); 
+//               printf("mark[%ld] = 1\n", i/2); 
                mark[i/2] = 1;
            }
        }

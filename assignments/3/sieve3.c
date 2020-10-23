@@ -36,7 +36,7 @@ int FMIB(long index, long prime) {
 int main(int argc, char **argv) {
 
    long N  = 100;
-   long BLKSIZE = 200000;
+   long BLKSIZE = 400000;
 
    char *mark;
 
@@ -71,7 +71,8 @@ int main(int argc, char **argv) {
    // +1 for null character 
    size = (N+1)*sizeof(char);
    mark = (char *)malloc(size);
-
+    
+   #pragma omp parallel for
    for (i=1; i<=N; i=i+1){
      mark[i]=0;
    }
@@ -98,6 +99,7 @@ int main(int argc, char **argv) {
    long primes[sqrt_N]; 
    primes[0] = 2;                   // Don't include 2 because it's even
    count = 1;                       // Count starts from 1 to account for  2
+   #pragma omp parallel for
    for(i = 3; i <= sqrt_N; i+=2){   // i starts from 3 as we only count odds
         if(mark[i/2] == 0) {
             primes[count++] = i;
