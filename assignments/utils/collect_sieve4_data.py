@@ -62,7 +62,7 @@ def collect_data(program, sizes):
             results = []
             for i in range(0, 8): 
                 output = subprocess.run([program['program_name']] + str(size).split(), capture_output=True).stdout.decode('utf-8')
-                result = re.search('(?<=' + program['time_token'] + ').\S*', output).group(0).strip()
+                result = re.search('(?<=' + time_token + ').\S*', output).group(0).strip()
                 print((threads, size, result))
                 results.append(float(result))
             results.remove(max(results))
@@ -97,24 +97,25 @@ def calculate_speedup(baseline_mean, test_times):
     # datum = (threads, problem_size, mean_time)
     for datum in test_times:
         print("datum", datum)
-        speedup = baseline_mean / datum * 100
-        speedup_list.append(speedup)
+        speedup = baseline_mean / datum[2] * 100
+        speedup_list.append((datum[0], datum[1], speedup))
     return speedup_list
 
 
 sizes = [500000 , 1000000, 1500000]
-sizes = [500000000, 1000000000, 1500000000] #500mil, 1bil, 1.5bil
+#sizes = [500000000, 1000000000, 1500000000] #500mil, 1bil, 1.5bil
 
 sieve1_results = collect_seq_data(sieve1, sizes)
 baseline_mean = sum(sieve1_results)/len(sieve1_results)
 
-sieve3_results = collect_seq_data(sieve3, sizes)
+sieve3_results = collect_data(sieve3, sizes)
 sieve3_speedups = calculate_speedup(baseline_mean, sieve3_results)
 
 data = pd.DataFrame({
-    "Problem Size": sizes,
-    "sieve4": sieve3_speedups
-
+    "Threads": range(1,9),
+    "0.5B": [datum[2] for datum in sieve3_speedups if datum[1] == sizes[0]],
+    "1.0B": [datum[2] for datum in sieve3_speedups if datum[1] == sizes[1]],
+    "1.5B": [datum[2] for datum in sieve3_speedups if datum[1] == sizes[2]]
 })
 
 
@@ -123,11 +124,28 @@ data.to_csv(filename + '.csv', index = False)
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-plt.title('sieve4 vs sieve3 Speedup')
-ax.plot(data['Problem Size'], data['sieve4'], label = 'sieve4')
-plt.xlabel('Problem Size')
+plt.title('sieve4 vs sieve3 Speedup 0.5B')
+ax.plot(data['Threads'], data['0.5B'], label = 'sieve4')
+plt.xlabel('Threads')
 plt.ylabel('Speedup (%)')
-plt.savefig('sieve4-speedup.png')
+plt.savefig('sieve4-speedup1.png')
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.title('sieve4 vs sieve3 Speedup 1B')
+ax.plot(data['Threads'], data['1.0B'], label = 'sieve4')
+plt.xlabel('Threads')
+plt.ylabel('Speedup (%)')
+plt.savefig('sieve4-speedup2.png')
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+plt.title('sieve4 vs sieve3 Speedup 1.5B')
+ax.plot(data['Threads'], data['1.5B'], label = 'sieve4')
+plt.xlabel('Threads')
+plt.ylabel('Speedup (%)')
+plt.savefig('sieve4-speedup3.png')
+
 
 #plt.show()    
 
