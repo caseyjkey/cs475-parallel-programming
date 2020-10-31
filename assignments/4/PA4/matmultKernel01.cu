@@ -41,13 +41,16 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
   float Cvalue3 = 0;
   float Cvalue4 = 0;
 
+  printf("test1\n");
+
+
   // Loop over all sub matrices in block_row of A and block_col of B
   // required to compute Csub. Block multiply each pair of sub matrices
   // and accumulate results
-  for (int m = 0;  m < (A.width / BLOCK_SIZE); ++m){
+  for (int m = 0;  m < (A.width / FOOTPRINT_SIZE); ++m){
     // Get Asub and Bsub descriptors
-    Asub = &A.elements[A.stride * BLOCK_SIZE * block_row + BLOCK_SIZE * m];
-    Bsub = &B.elements[B.stride * BLOCK_SIZE * m + BLOCK_SIZE * block_col];
+    Asub = &A.elements[A.stride * FOOTPRINT_SIZE * block_row + FOOTPRINT_SIZE * m];
+    Bsub = &B.elements[B.stride * FOOTPRINT_SIZE * m + FOOTPRINT_SIZE * block_col];
 
     // Copy ELEMENTS OF  ASub and Bsub into shared memory
     // EACH THREAD loads ONE ELEMENT of ASub and ONE of Bsub
@@ -90,6 +93,8 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
        Cvalue3 += shared_A[thread_row + BLOCK_SIZE][e] * shared_B[e][thread_col];
        Cvalue4 += shared_A[thread_row + BLOCK_SIZE][e] * shared_B[e][thread_col + BLOCK_SIZE];
     }
+
+    printf("test\n");
 
     // Synchronize to ensure all Cvalues have been incremented
     // before reading in the next shared_A AND shared_B BLOCKS
