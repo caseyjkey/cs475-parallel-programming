@@ -20,7 +20,6 @@
 // of A x B = C.
 __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
 
-  int FOOTPRINT_SIZE = BLOCK_SIZE * 2;
   // matrix blocks
   float *Asub, *Bsub, *Csub;
   // Putting these into registers speeds access.
@@ -29,9 +28,12 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
   int block_row = blockIdx.y;
   int block_col = blockIdx.x;
 
+
+  int FOOTPRINT_SIZE = BLOCK_SIZE * 2;
+
   // Each THREAD BLOCK computes one sub matrix Csub of C
   // EACH THREAD creates its own matrix descriptor Csub
-  Csub = &C.elements[C.stride * BLOCK_SIZE * block_row + BLOCK_SIZE * block_col];
+  Csub = &C.elements[C.stride * FOOTPRINT_SIZE * block_row + FOOTPRINT_SIZE * block_col];
 
   // Each thread computes one element of Csub in its copy of CValue
   float Cvalue = 0;
@@ -55,8 +57,8 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
 
     // Notice: every thread declares shared_A and shared_B in shared memory
     //         even though a thread block has only one shared_A and one shared_B
-    __shared__ float shared_A[BLOCK_SIZE][BLOCK_SIZE];
-    __shared__ float shared_B[BLOCK_SIZE][BLOCK_SIZE];
+    __shared__ float shared_A[FOOTPRINT_SIZE][FOOTPRINT_SIZE];
+    __shared__ float shared_B[FOOTPRINT_SIZE][FOOTPRINT_SIZE];
 
     // Top left element
     shared_A[thread_row][thread_col] = Asub[thread_row * A.stride + thread_col];
