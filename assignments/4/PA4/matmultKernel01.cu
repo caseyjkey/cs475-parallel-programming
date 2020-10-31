@@ -29,7 +29,7 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
   int block_col = blockIdx.x;
 
 
-  int FOOTPRINT_SIZE = BLOCK_SIZE * 2;
+  //int FOOTPRINT_SIZE = BLOCK_SIZE * 2;
 
   // Each THREAD BLOCK computes one sub matrix Csub of C
   // EACH THREAD creates its own matrix descriptor Csub
@@ -103,8 +103,8 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
   printf("[%i][%i] = %g\n", thread_row * C.stride, thread_col + BLOCK_SIZE, Cvalue3);
   printf("[%i][%i] = %g\n", (thread_row + BLOCK_SIZE) * C.stride, thread_col + BLOCK_SIZE, Cvalue4);
   Csub[thread_row * C.stride + thread_col] = Cvalue;
-  Csub[(thread_row + BLOCK_SIZE) * C.stride + thread_col] = Cvalue3;
-  Csub[thread_row * C.stride + thread_col + BLOCK_SIZE] = Cvalue2;
+  Csub[(thread_row + BLOCK_SIZE) * C.stride + thread_col] = Cvalue2;
+  Csub[thread_row * C.stride + thread_col + BLOCK_SIZE] = Cvalue3;
   Csub[(thread_row + BLOCK_SIZE) * C.stride + thread_col + BLOCK_SIZE] = Cvalue4;
 }
 
