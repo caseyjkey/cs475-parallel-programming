@@ -14,7 +14,6 @@
 #define __MMKERNEL__
 
 // Defines for size of thread block and data computed by a thread block
-#define BLOCK_SIZE 16
 #ifndef FOOTPRINT_SIZE
 #define FOOTPRINT_SIZE BLOCK_SIZE
 #endif

@@ -13,7 +13,6 @@
 /// each of your experiments. 
 ///
 
-#include <stdio.h>
 #include "matmultKernel.h"
 
 // Define a gpu kernel to perform matrix multiplication
@@ -74,7 +73,6 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
 
   // Write Csub to GLOBAL memory.
   // Each thread writes its own cell value.
-  printf("Cval: %g\n", Cvalue);
   Csub[thread_row * C.stride + thread_col] = Cvalue;
 }
 

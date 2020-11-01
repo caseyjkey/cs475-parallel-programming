@@ -13,7 +13,6 @@
 /// each of your experiments. 
 ///
 
-#include <stdio.h>
 #include "matmultKernel.h"
 
 // Define a gpu kernel to perform matrix multiplication
@@ -40,8 +39,6 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
   float Cvalue2 = 0;
   float Cvalue3 = 0;
   float Cvalue4 = 0;
-
-  printf("test1\n");
 
 
   // Loop over all sub matrices in block_row of A and block_col of B
@@ -94,8 +91,6 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
        Cvalue4 += shared_A[thread_row + BLOCK_SIZE][e] * shared_B[e][thread_col + BLOCK_SIZE];
     }
 
-    printf("test\n");
-
     // Synchronize to ensure all Cvalues have been incremented
     // before reading in the next shared_A AND shared_B BLOCKS
     __syncthreads();
@@ -103,13 +98,9 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C){
 
   // Write Csub to GLOBAL memory.
   // Each thread writes its own cell value.
-  printf("[%i][%i] = %g\n", thread_row * C.stride, thread_col, Cvalue);
-  printf("[%i][%i] = %g\n", (thread_row + BLOCK_SIZE) * C.stride, thread_col, Cvalue2);
-  printf("[%i][%i] = %g\n", thread_row * C.stride, thread_col + BLOCK_SIZE, Cvalue3);
-  printf("[%i][%i] = %g\n", (thread_row + BLOCK_SIZE) * C.stride, thread_col + BLOCK_SIZE, Cvalue4);
   Csub[thread_row * C.stride + thread_col] = Cvalue;
-  Csub[(thread_row + BLOCK_SIZE) * C.stride + thread_col] = Cvalue2;
-  Csub[thread_row * C.stride + thread_col + BLOCK_SIZE] = Cvalue3;
+  Csub[(thread_row + BLOCK_SIZE) * C.stride + thread_col] = Cvalue3;
+  Csub[thread_row * C.stride + thread_col + BLOCK_SIZE] = Cvalue2;
   Csub[(thread_row + BLOCK_SIZE) * C.stride + thread_col + BLOCK_SIZE] = Cvalue4;
 }
 
