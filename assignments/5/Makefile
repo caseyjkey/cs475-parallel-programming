@@ -1,51 +1,39 @@
-FLAGS=  -O3  -std=c99 -fopenmp  -I/usr/include/malloc/ 
-LIBRARIES=-lm
-CC=gcc 
-AR=xiar
+FLAGS= -O3 --ptxas-options -v --gpu-architecture=sm_61 --compiler-bindir /usr/local/gcc-6.4.0/bin -std=c++11 
+CC=nvcc 
 OBJS = MMScan.o
 
-all: plain verb int rand verb-rand check DNC DNC-int
-
-debug: CFLAGS =-DDEBUG -g -Wall -Wextra -std=c99 -I/usr/include/malloc/
-debug: all
+all: plain verb int rand check CUDA CUDA-int
 
 plain: $(OBJS)
-	$(CC) MMScan-wrapper.cu -o MMScan $(OBJS) $(CFLAGS) $(LIBRARIES) 
+	nvcc MMScan-wrapper.cu -o MMScan $(OBJS) $(FLAGS) 
 
 verb:
-	$(CC) MMScan-wrapper.cu -o MMScan.verb $(OBJS) $(CFLAGS) $(LIBRARIES) -DVERBOSE
+	$(CC) MMScan-wrapper.cu -o MMScan.verb $(OBJS) $(FLAGS)
 
 int: 
-	$(CC) MMScan-wrapper.cu -o MMScan.int $(OBJS) $(CFLAGS) $(LIBRARIES) -DINTERACTIVE
+	$(CC) MMScan-wrapper.cu -o MMScan.int $(OBJS) $(FLAGS)
 
 rand: 
-	$(CC) MMScan-wrapper.cu -o MMScan.rand $(OBJS) $(CFLAGS) $(LIBRARIES) -DRANDOM
+	$(CC) MMScan-wrapper.cu -o MMScan.rand $(OBJS) $(FLAGS)
 
-verb-rand: 
-	$(CC) MMScan-wrapper.cu -o MMScan.verb-rand $(OBJS) $(CFLAGS) $(LIBRARIES) -DVERBOSE -DRANDOM
 
 check: 
-	$(CC) MMScan-wrapper.cu -o MMScan.check $(OBJS) $(CFLAGS) $(LIBRARIES) -DCHECKING
+	$(CC) MMScan-wrapper.cu -o MMScan.check $(OBJS) $(FLAGS) -DCHECKING
 
-MMScan.o: MMScan.c
-	$(CC) MMScan.c -o MMScan.o $(CFLAGS) $(LIBRARIES) -c
+MMScan.o: MMScan.cu
+	$(CC) MMScan.cu -o MMScan.o $(FLAGS) -c
 
-MMScanCUDA.o: MMScan.c
-	$(CC) MMScan.c -o MMScanDNC.o $(CFLAGS) $(LIBRARIES) -c -DCUDA -DOTHER_FLAGS # (as needed)
+MMScanCUDA.o: MMScan.cu
+	$(CC) MMScan.cu -o MMScanCUDA.o $(FLAGS) -c -DCUDA 
 
 ## Additional lines for DNC (& DNC.int for testing)
 
 CUDA: MMScanCUDA.o
-	$(CC) MMScan-wrapper.cu -o MMScanCUDA MMScanCUDA.o $(CFLAGS) $(LIBRARIES) -DCUDA -DG=4 -DS=5
+	$(CC) MMScan-wrapper.cu -o MMScanCUDA MMScanCUDA.o $(FLAGS) -DCUDA -DG=4 -DS=5
 
 CUDA-int: 
-	$(CC) MMScan-wrapper.cu -o MMScanCUDA.int MMScanCUDA.o $(CFLAGS) $(LIBRARIES) -DINTERACTIVE -DG=4 -DS=5
+	$(CC) MMScan-wrapper.cu -o MMScanCUDA.int MMScanCUDA.o $(FLAGS) -DINTERACTIVE -DG=4 -DS=5
  
-
-
-## Add additional line for different versions like verb, rand, etc. (for debugging/testing)
-
-## Then add simolar sets of lines for other executables
 
 
 clean:

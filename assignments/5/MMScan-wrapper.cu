@@ -28,7 +28,7 @@
 #define EPSILON 1.0E-6
 
 void MMScan(float***, float***, long, long, long);
-void MMScanDNC(float***, float***, float***, long, long, long, long, long);
+//void MMScanDNC(float***, float***, float***, long, long, long, long, long);
 
 //main
 int main(int argc, char** argv) {
@@ -167,7 +167,9 @@ cudaMalloc((void**) &Y_GPU, size);
 float R1_GPU, R2_GPU;
 size = G * B * B * sizeof(float);
 cudaMalloc((void**) &R1_GPU, size);
-cuda
+cudaMalloc((void**) &R2_GPU, size);
+
+printf("CUDA!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
   
 #else
   MMScan(X, Y, 0, N-1, B);
