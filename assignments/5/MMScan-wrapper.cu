@@ -30,21 +30,28 @@
 
 void MMScan(float***, float***, long, long, long);
 
-void MMScanCUDA(float*** X, float*** Y, float*** T, long start, long end, long size) {
+// Removed start parameter from MMScan, replaced end with N and size with B
+void MMScanCUDA(float*** X, float*** Y, float*** T, long N, long B) {
 		
 	float* X_GPU, Y_GPU;
-	size_t size = B * B * N * sizeof(float);
-	cudaMalloc((void**) &X_GPU, size);
-	cudaMalloc((void**) &Y_GPU, size);
+	size_t matrixListSize = B * B * N * sizeof(float);
+	cudaMalloc((void**) &X_GPU, matrixListSize);
+	cudaMalloc((void**) &Y_GPU, matrixListSize);
 
-	float R1_GPU, R2_GPU;
-	size = G * B * B * sizeof(float);
-	cudaMalloc((void**) &R1_GPU, size);
-	cudaMalloc((void**) &R2_GPU, size);
+	float* R1_GPU, R2_GPU;
+	matrixListSize = G * B * B * sizeof(float);
+	cudaMalloc((void**) &R1_GPU, matrixListSize);
+	cudaMalloc((void**) &R2_GPU, matrixListSize);
 
-	MMScanKernel<<<5, 5>>>(X, Y, T, start, end, size);
+	dim3 dimBlock(S, S);
+	dim3 dimGrid(G, 1);
 
-	printf("CUDA!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+	MMScanKernel<<<dimGrid, dimBlock>>>(X, Y, T, N, B);
+
+	cudaFree(X_GPU);
+	//cudaFree(Y_GPU);
+	cudaFree(R1_GPU);
+	//cudaFree(R2_GPU);
 }
 
 int main(int argc, char** argv) {

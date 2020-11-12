@@ -5,26 +5,32 @@ OBJS = MMScan.o
 all: plain verb int rand check CUDA CUDA-int
 
 plain: $(OBJS)
-	nvcc MMScan-wrapper.cu -o MMScan $(OBJS) $(FLAGS) 
+	nvcc MMScan-wrapper.cu -o MMScan $(OBJS) $(FLAGS) -DG=4 -DS=5
+
 
 verb:
-	$(CC) MMScan-wrapper.cu -o MMScan.verb $(OBJS) $(FLAGS)
+	$(CC) MMScan-wrapper.cu -o MMScan.verb $(OBJS) $(FLAGS) -DG=4 -DS=5
+
 
 int: 
-	$(CC) MMScan-wrapper.cu -o MMScan.int $(OBJS) $(FLAGS)
+	$(CC) MMScan-wrapper.cu -o MMScan.int $(OBJS) $(FLAGS) -DG=4 -DS=5
+
 
 rand: 
-	$(CC) MMScan-wrapper.cu -o MMScan.rand $(OBJS) $(FLAGS)
+	$(CC) MMScan-wrapper.cu -o MMScan.rand $(OBJS) $(FLAGS) -DG=4 -DS=5
+
 
 
 check: 
-	$(CC) MMScan-wrapper.cu -o MMScan.check $(OBJS) $(FLAGS) -DCHECKING
+	$(CC) MMScan-wrapper.cu -o MMScan.check $(OBJS) $(FLAGS) -DCHECKING -DG=4 -DS=5
 
-MMScan.o: MMScan.cu
-	$(CC) MMScan.cu -o MMScan.o $(FLAGS) -c
 
-MMScanCUDA.o: MMScan.cu
-	$(CC) MMScan.cu -o MMScanCUDA.o $(FLAGS) -c -DCUDA 
+MMScan.o: MMScan.c
+	$(CC) MMScan.c -o MMScan.o $(FLAGS) -c
+
+MMScanCUDA.o: MMScanKernel.cu
+	$(CC) MMScanKernel.cu -o MMScanCUDA.o $(FLAGS) -c -DCUDA -DG=4 -DS=5
+ 
 
 ## Additional lines for DNC (& DNC.int for testing)
 
