@@ -28,7 +28,31 @@
 #define mallocCheck(v,s,d) if ((v) == NULL) { printf("Failed to allocate memory for %s : size=%lu\n", "sizeof(d)*(s)", sizeof(d)*(s)); exit(-1); }
 #define EPSILON 1.0E-6
 
-void MMScan(float***, float***, long, long, long);
+void MMScan(float*** X, float*** Y, long start, long end, long size) {
+  long n, i, j, k;
+  for(i=0; i <= size-1; i+=1)
+    {
+      for(j=0; j <= size-1; j+=1)
+        {
+          Y[start][i][j] = X[start][i][j];
+        }
+    }
+
+  for(n=start+1; n <= end; n+=1)
+    {
+      for(i=0; i < size; i+=1)
+        {
+          for(j=0; j < size; j+=1)
+            {
+              float acc = 0;
+              for(k=0; k<size; k++){
+                acc = acc + Y[n-1][i][k] * X[n][k][j];
+              }
+              Y[n][i][j] = acc;
+            }
+        }
+    }
+}
 
 // Removed start parameter from MMScan, replaced end with N and size with B
 void MMScanCUDA(float*** X, float*** Y, float*** T, long N, long B) {
