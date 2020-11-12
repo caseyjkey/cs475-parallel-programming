@@ -19,6 +19,7 @@
 #include <sys/time.h>
 #include <sys/errno.h>
 #include <omp.h>
+#include "MMScanKernel.h"
 
 #define max(x, y)   ((x)>(y) ? (x) : (y))
 #define min(x, y)   ((x)>(y) ? (y) : (x))
@@ -28,9 +29,24 @@
 #define EPSILON 1.0E-6
 
 void MMScan(float***, float***, long, long, long);
-//void MMScanDNC(float***, float***, float***, long, long, long, long, long);
 
-//main
+void MMScanCUDA(float*** X, float*** Y, float*** T, long start, long end, long size) {
+		
+	float* X_GPU, Y_GPU;
+	size_t size = B * B * N * sizeof(float);
+	cudaMalloc((void**) &X_GPU, size);
+	cudaMalloc((void**) &Y_GPU, size);
+
+	float R1_GPU, R2_GPU;
+	size = G * B * B * sizeof(float);
+	cudaMalloc((void**) &R1_GPU, size);
+	cudaMalloc((void**) &R2_GPU, size);
+
+	MMScanKernel<<<5, 5>>>(X, Y, T, start, end, size);
+
+	printf("CUDA!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+}
+
 int main(int argc, char** argv) {
   //Check number of args
   if (argc <= 2) {
@@ -159,17 +175,6 @@ int main(int argc, char** argv) {
 
 #if defined CUDA  
 
-float* X_GPU, Y_GPU;
-size_t size = B * B * N * sizeof(float);
-cudaMalloc((void**) &X_GPU, size);
-cudaMalloc((void**) &Y_GPU, size);
-
-float R1_GPU, R2_GPU;
-size = G * B * B * sizeof(float);
-cudaMalloc((void**) &R1_GPU, size);
-cudaMalloc((void**) &R2_GPU, size);
-
-printf("CUDA!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
   
 #else
   MMScan(X, Y, 0, N-1, B);
