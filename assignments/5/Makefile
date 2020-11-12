@@ -1,10 +1,10 @@
 FLAGS= -O3 --ptxas-options -v --gpu-architecture=sm_61 --compiler-bindir /usr/local/gcc-6.4.0/bin -std=c++11 
 CC=nvcc 
-OBJS = MMScan.o
+OBJS = MMScanCUDA.o MMScan.o 
 
 all: plain verb int rand check CUDA CUDA-int
 
-plain: $(OBJS)
+plain: MMScanCUDA.h MMScan-wrapper.cu $(OBJS)
 	nvcc MMScan-wrapper.cu -o MMScan $(OBJS) $(FLAGS) -DG=4 -DS=5
 
 

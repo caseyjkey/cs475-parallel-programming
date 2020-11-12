@@ -36,12 +36,12 @@ void MMScanCUDA(float*** X, float*** Y, float*** T, long N, long B) {
 	float* X_GPU, Y_GPU;
 	size_t matrixListSize = B * B * N * sizeof(float);
 	cudaMalloc((void**) &X_GPU, matrixListSize);
-	cudaMalloc((void**) &Y_GPU, matrixListSize);
+	//cudaMalloc((void**) &Y_GPU, matrixListSize);
 
 	float* R1_GPU, R2_GPU;
 	matrixListSize = G * B * B * sizeof(float);
 	cudaMalloc((void**) &R1_GPU, matrixListSize);
-	cudaMalloc((void**) &R2_GPU, matrixListSize);
+	//cudaMalloc((void**) &R2_GPU, matrixListSize);
 
 	dim3 dimBlock(S, S);
 	dim3 dimGrid(G, 1);
@@ -129,6 +129,8 @@ int main(int argc, char** argv) {
   srand((unsigned)time(NULL));
 
   //Input Initialization
+
+  //Input Initialization
   
 #if defined (RANDOM)
   float x, y, tmp;
@@ -181,8 +183,9 @@ int main(int argc, char** argv) {
   elapsed_time1 = (((double) time.tv_sec) + ((double) time.tv_usec)/1000000);
 
 #if defined CUDA  
-
-  
+  MMScanCUDA(X, Y, Temp, N, B);  
+  cudaDeviceSynchronize();
+  printf("Result: %ld", X[0][0][0]);
 #else
   MMScan(X, Y, 0, N-1, B);
 #endif
@@ -261,10 +264,6 @@ int main(int argc, char** argv) {
       printf("\tX[%ld][i][j], \tY[%ld][i][j], \tTemp[%ld][i][j] \n", n, n, n);
       for(i=0; i <= B-1; i+=1)
 	{
-	  for(j=0; j <= B-1; j+=1)
-	    {
-	      printf("%10g ", X[n][i][j]);
-	    }
 	  printf("\t");	  
 	  for(j=0; j <= B-1; j+=1)
 	    {
