@@ -1,11 +1,13 @@
 FLAGS= -O3 --ptxas-options -v --gpu-architecture=sm_61 --compiler-bindir /usr/local/gcc-6.4.0/bin -std=c++11 
+CFLAGS=  -g -std=c99 -fopenmp  -I/usr/include/malloc/
+LIBRARIES=-lm
 CC=nvcc 
 OBJS = MMScanCUDA.o MMScan.o 
 
 all: plain verb int rand check CUDA CUDA-int
 
-plain: MMScanCUDA.h MMScan-wrapper.cu $(OBJS)
-	nvcc MMScan-wrapper.cu -o MMScan $(OBJS) $(FLAGS) -DG=4 -DS=5
+plain: $(OBJS)
+	nvcc MMScan-wrapper.cu -o MMScan $(OBJS) $(FLAGS) -lm -DG=4 -DS=5
 
 
 verb:
@@ -26,7 +28,7 @@ check:
 
 
 MMScan.o: MMScan.c
-	$(CC) MMScan.c -o MMScan.o $(FLAGS) -c
+	gcc MMScan.c -o MMScan.o $(CFLAGS) $(LIBRARIES) -c
 
 MMScanCUDA.o: MMScanKernel.cu
 	$(CC) MMScanKernel.cu -o MMScanCUDA.o $(FLAGS) -c -DCUDA -DG=4 -DS=5
