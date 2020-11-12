@@ -72,6 +72,13 @@ void MMScanCUDA(float*** X, float*** Y, float*** T, long N, long B) {
 
 	MMScanKernel<<<dimGrid, dimBlock>>>(X, Y, T, N, B);
 
+	cudaDeviceSynchronize();
+
+	float* result = (float*)malloc(sizeof(float)*((N) * (B) * (B)));
+	cudaMemcpy(result, X, sizeof(float), cudaMemcpyDeviceToHost);
+	printf("Result: %ld\n", result);
+
+
 	cudaFree(X_GPU);
 	//cudaFree(Y_GPU);
 	cudaFree(R1_GPU);
@@ -208,8 +215,6 @@ int main(int argc, char** argv) {
 
 #if defined CUDA  
   MMScanCUDA(X, Y, Temp, N, B);  
-  cudaDeviceSynchronize();
-  printf("Result: %ld", X[0][0][0]);
 #else
   MMScan(X, Y, 0, N-1, B);
 #endif
