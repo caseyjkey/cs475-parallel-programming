@@ -62,7 +62,7 @@ void MMScanCUDA(float* X, float* Y, float* T, long N, long B) {
 	float* X_GPU;
 	size_t matrixListSize = B * B * N * sizeof(float);
 	cudaMalloc((void**) &X_GPU, matrixListSize);
-	cudaMemcpy(X_GPU, _lin_X, matrixListSize, cudaMemcpyHostToDevice);
+	cudaMemcpy(X_GPU, X, matrixListSize, cudaMemcpyHostToDevice);
 
 	float* R1_GPU;
 	matrixListSize = G * B * B * sizeof(float);
@@ -71,22 +71,23 @@ void MMScanCUDA(float* X, float* Y, float* T, long N, long B) {
 	
 	dim3 dimBlock(S, S);
 	dim3 dimGrid(G, 1);
+	long sharedMemSize = sizeof(float)*B*B*3;
 
 	// Warm up
-	MMScanKernel00<<<dimGrid, dimBlock>>>(X_GPU, R1_GPU, N, B);
+	MMScanKernel00<<<dimGrid, dimBlock, sharedMemSize>>>(X_GPU, R1_GPU, N, B);
 
 	cudaDeviceSynchronize();
 
 	// For real
-	MMScanKernel00<<<dimGrid, dimBlock>>>(X_GPU, R1_GPU, N, B);
+	MMScanKernel00<<<dimGrid, dimBlock, sharedMemSize>>>(X_GPU, R1_GPU, N, B);
 
 	cudaDeviceSynchronize();
 
 
 	float* result = (float*)malloc(matrixListSize);
 	//(float*)malloc(sizeof(float)*((N) * (B) * (B)));
-	cudaMemcpy(result, X_GPU, matrixListSize, cudaMemcpyDeviceToHost);
-	printf("Result: %f\n", result[0]);
+	cudaMemcpy(result, R1_GPU, matrixListSize, cudaMemcpyDeviceToHost);
+	printf("Result: %f\n", result[1]);
 
 	/*
 	cudaFree(X_GPU);
