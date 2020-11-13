@@ -84,10 +84,10 @@ void MMScanCUDA(float* X, float* Y, float* T, long N, long B) {
 	cudaDeviceSynchronize();
 
 
-	float* result = (float*)malloc(matrixListSize);
+	float* result = (float*)malloc(sizeof(float) * B * B);
 	//(float*)malloc(sizeof(float)*((N) * (B) * (B)));
 	cudaMemcpy(result, R1_GPU, matrixListSize, cudaMemcpyDeviceToHost);
-	printf("Result: %f\n", result[1]);
+	printf("Result: %f\n", result[0]);
 
 	/*
 	cudaFree(X_GPU);
@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
     exit(0);
   }
 
-  char *end = 0;
+  //char *end = 0;
   char *val = 0;
   //Read Parameters
   //Initialization of N
@@ -116,14 +116,14 @@ int main(int argc, char** argv) {
   val = argv[2];
   long B = atoi(val);
 
-  long tuning = 0;
+  /*long tuning = 0;
   //Additional args?
   if(argc > 3)
     {
       val = argv[3];
       tuning = atoi(val);
     }
-
+  */
   ///Parameter checking
   if (!((N >= 1 && B >= 1))) {
     printf("The value of parameters are not valid.\n");
@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
   }
   
   //Memory Allocation
-  long n, i, j, k;
+  long n, i, j; //, k;
   float* _lin_X = (float*)malloc(sizeof(float)*((N) * (B) * (B)));
   mallocCheck(_lin_X, ((N) * (B) * (B)), float);
   float*** X = (float***)malloc(sizeof(float**)*(N));

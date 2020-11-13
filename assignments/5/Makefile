@@ -10,13 +10,13 @@ EXECS := MMScan MMScanCUDA
 all:$(EXECS)
 
 MMScanKernel.o : MMScanKernel.h MMScanKernel.cu 
-	nvcc $(filter-out $<,$^) -c -o $@ $(OPTIONS) -DG=2 -DS=3
+	nvcc $(filter-out $<,$^) -c -o $@ $(OPTIONS) -DG=3 -DS=3
 
 MMScan : MMScanKernel.h MMScan-wrapper.cu MMScanKernel.o
-	nvcc $(filter-out $<,$^) -o $@ $(LIB) $(OPTIONS) -DG=2 -DS=3
+	nvcc $(filter-out $<,$^) -o $@ $(LIB) $(OPTIONS) -DG=3 -DS=3
 
 MMScanCUDA : MMScanKernel.h MMScan-wrapper.cu MMScanKernel.o
-	nvcc $(filter-out $<,$^) -o $@ $(LIB) $(OPTIONS) -DCUDA -DG=2 -DS=3
+	nvcc $(filter-out $<,$^) -o $@ $(LIB) $(OPTIONS) -DCUDA -DG=3 -DS=3
 
 
 tar: .cu matmultKernel01.cu matmultKernel.h matmult.cu Makefile vecMax.cu vecMaxKernel00.cu vecMaxKernel01.cu vecMaxKernel.h report.pdf
