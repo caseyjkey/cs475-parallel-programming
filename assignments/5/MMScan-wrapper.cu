@@ -55,34 +55,45 @@ void MMScan(float*** X, float*** Y, long start, long end, long size) {
 }
 
 // Removed start parameter from MMScan, replaced end with N and size with B
-void MMScanCUDA(float*** X, float*** Y, float*** T, long N, long B) {
+void MMScanCUDA(float* X, float* Y, float* T, long N, long B) {
 		
-	float* X_GPU, Y_GPU;
+	cudaSetDevice(0);
+	
+	float* X_GPU;
 	size_t matrixListSize = B * B * N * sizeof(float);
 	cudaMalloc((void**) &X_GPU, matrixListSize);
-	//cudaMalloc((void**) &Y_GPU, matrixListSize);
+	cudaMemcpy(X_GPU, _lin_X, matrixListSize, cudaMemcpyHostToDevice);
 
-	float* R1_GPU, R2_GPU;
+	float* R1_GPU;
 	matrixListSize = G * B * B * sizeof(float);
 	cudaMalloc((void**) &R1_GPU, matrixListSize);
-	//cudaMalloc((void**) &R2_GPU, matrixListSize);
 
+	
 	dim3 dimBlock(S, S);
 	dim3 dimGrid(G, 1);
 
-	MMScanKernel<<<dimGrid, dimBlock>>>(X, Y, T, N, B);
+	// Warm up
+	MMScanKernel00<<<dimGrid, dimBlock>>>(X_GPU, R1_GPU, N, B);
 
 	cudaDeviceSynchronize();
 
-	float* result = (float*)malloc(sizeof(float)*((N) * (B) * (B)));
-	cudaMemcpy(result, X, sizeof(float), cudaMemcpyDeviceToHost);
-	printf("Result: %ld\n", result);
+	// For real
+	MMScanKernel00<<<dimGrid, dimBlock>>>(X_GPU, R1_GPU, N, B);
+
+	cudaDeviceSynchronize();
 
 
+	float* result = (float*)malloc(matrixListSize);
+	//(float*)malloc(sizeof(float)*((N) * (B) * (B)));
+	cudaMemcpy(result, X_GPU, matrixListSize, cudaMemcpyDeviceToHost);
+	printf("Result: %f\n", result[0]);
+
+	/*
 	cudaFree(X_GPU);
 	//cudaFree(Y_GPU);
 	cudaFree(R1_GPU);
 	//cudaFree(R2_GPU);
+	*/
 }
 
 int main(int argc, char** argv) {
@@ -214,7 +225,7 @@ int main(int argc, char** argv) {
   elapsed_time1 = (((double) time.tv_sec) + ((double) time.tv_usec)/1000000);
 
 #if defined CUDA  
-  MMScanCUDA(X, Y, Temp, N, B);  
+  MMScanCUDA(_lin_X, _lin_Y, _lin_Temp, N, B);  
 #else
   MMScan(X, Y, 0, N-1, B);
 #endif
