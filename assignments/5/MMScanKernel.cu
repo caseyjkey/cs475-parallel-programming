@@ -2,7 +2,7 @@
 
 // Find N/G breakpoints for our scan
 // G groups/blocks
-__global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){  long matrixSize = sizeof(float)*B*B;
+__global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){ 
   extern __shared__ float array[];
 	
 	// B0, B1 will hold intermediate products
@@ -14,14 +14,22 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){  lo
 
   // Do calculation
 	long X, Y, X_offset, Y_offset, P;
-  long matricesPerBlock = N/G;
-	long numMatrices = blockIdx.x * matricesPerBlock;
+  long matricesPerBlock = N/gridDim.x;
+	long matrixOffset = blockIdx.x * matricesPerBlock;
 	long elementsPerMatrix = B * B;
 	long result;
 
+	memset(B0, 0, B * B * sizeof(float));
+	B0[0] = 1;
+  B1[0] = 1;
+	B2[0] = 1;
+	for (long i = 0; i < B; i++)
+		B0[i * B + i] = 1;
+	__syncthreads();
+
   for (long Q = 0; Q < matricesPerBlock; Q++) {
     long currentMatrix = Q * elementsPerMatrix;
-    long chain_offset = numMatrices * elementsPerMatrix + currentMatrix;
+    long chain_offset = matrixOffset * elementsPerMatrix + currentMatrix;
 		for (Y = 0; Y < B/S; Y++) {
       Y_offset = Y * B * S + threadIdx.y * B;
       for (X = 0; X < B/S; X++) {
@@ -49,7 +57,7 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){  lo
 		
   }
 
-  memcpy(R1_GPU + (sizeof(float) * blockIdx.x * B * B), B0, sizeof(float)*B*B);
+  memcpy(R1_GPU + (sizeof(float) * (blockIdx.x * B * B)), B0, sizeof(float)*(B*B));
 
   return;
 }

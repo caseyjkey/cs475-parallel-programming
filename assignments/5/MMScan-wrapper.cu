@@ -60,7 +60,7 @@ void MMScanCUDA(float* X, float* Y, float* T, long N, long B) {
 	cudaSetDevice(0);
 	
 	float* X_GPU;
-	size_t matrixListSize = B * B * N * sizeof(float);
+	size_t matrixListSize = N * B * B * sizeof(float);
 	cudaMalloc((void**) &X_GPU, matrixListSize);
 	cudaMemcpy(X_GPU, X, matrixListSize, cudaMemcpyHostToDevice);
 
@@ -71,7 +71,7 @@ void MMScanCUDA(float* X, float* Y, float* T, long N, long B) {
 	
 	dim3 dimBlock(S, S);
 	dim3 dimGrid(G, 1);
-	long sharedMemSize = sizeof(float)*B*B*3;
+	long sharedMemSize = 3 * B * B * sizeof(float);
 
 	// Warm up
 	MMScanKernel00<<<dimGrid, dimBlock, sharedMemSize>>>(X_GPU, R1_GPU, N, B);
@@ -84,7 +84,7 @@ void MMScanCUDA(float* X, float* Y, float* T, long N, long B) {
 	cudaDeviceSynchronize();
 
 
-	float* R1 = (float*)malloc(sizeof(float) * G * B * B);
+	float* R1 = (float*)malloc(G * B * B * sizeof(float));
 	cudaMemcpy(R1, R1_GPU, matrixListSize, cudaMemcpyDeviceToHost);
 	for(int i = 0; i < G; i++) {
 		for(int j = 0; j < B; j++) {
@@ -99,6 +99,7 @@ void MMScanCUDA(float* X, float* Y, float* T, long N, long B) {
 	cudaFree(X_GPU);
 	//cudaFree(Y_GPU);
 	cudaFree(R1_GPU);
+	free(R1);
 	//cudaFree(R2_GPU);
 
 }
@@ -196,7 +197,7 @@ int main(int argc, char** argv) {
   for(i=0; i <= B-1; i+=1) {
     for(j=0; j <= B-1; j+=1) {
       X[0][i][j] = (float) 1.0;   // all 1s
-			_lin_X[(B * B) * 0 + B * i + j] = (float) 1.0; // all 1s
+			_lin_X[((B * B) * 0) + (B * i) + j] = (float) 1.0; // all 1s
 		}
 	}
   
@@ -210,7 +211,7 @@ int main(int argc, char** argv) {
 	      }
 				#else // not random nor interactive, i.e., default
 				X[n][i][j] = (float) (n+1)/((float) (B*n));
-				_lin_X[(B * B) * n + B * i + j] = (float) (n+1)/((float) (B*n));
+				_lin_X[((B * B) * n) + (B * i) + j] = (float) (n+1)/((float) (B*n));
 #endif
 	    }
 		}
