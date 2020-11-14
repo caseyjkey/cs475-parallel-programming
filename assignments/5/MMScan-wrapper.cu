@@ -86,7 +86,14 @@ void MMScanCUDA(float* X, float* Y, float* T, long N, long B) {
 
 	float* R1 = (float*)malloc(sizeof(float) * G * B * B);
 	cudaMemcpy(R1, R1_GPU, matrixListSize, cudaMemcpyDeviceToHost);
-	printf("R1[0]: %f\n", R1[0]);
+	for(int i = 0; i < G; i++) {
+		for(int j = 0; j < B; j++) {
+			for(int k = 0; k < B; k++) {
+				long index = i * B * B + j * B + k;
+				printf("R1[%d]: %f\n", index, R1[index]);
+			}
+		}
+	}
 
 	
 	cudaFree(X_GPU);
