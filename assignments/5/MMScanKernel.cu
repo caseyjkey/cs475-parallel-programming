@@ -1,5 +1,13 @@
 #include "MMScanKernel.h"
 
+__device__ void swapArray(float* source, float* dest, int size) {
+	for(int i = 0; i < size*size; i++) {
+		source[i] = source[i] + dest[i];
+		dest[i] = source[i] - dest[i];
+		source[i] = source[i] - dest[i];	
+	}
+}
+
 // Find N/G breakpoints for our scan
 // G groups/blocks
 __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){  long matrixSize = sizeof(float)*B*B;
@@ -11,7 +19,6 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){  lo
   float* B0 = array;
   float* B1 = &array[B*B];
   float* B2 = &array[2*B*B];
-	float* Btemp;
 
   // Do calculation
 	long X, Y, X_offset, Y_offset, P;
@@ -43,6 +50,7 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){  lo
 			for (X = 0; X < B/subMatrixDim; X++) {
 				X_offset = X * subMatrixDim + threadIdx.x;
 				result=0;
+				__syncthreads();
 				for (P=0; P < B; P++) {
 					result += B0[Y_offset + P] * B1[X_offset + P * B];
 				}			
@@ -51,9 +59,7 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){  lo
 		}
 		
 		__syncthreads();
-		Btemp = B0;
-		B0 = B2;
-		B2 = Btemp;
+		swapArray(B2, B0, B);
   }
 
   //X_GPU = B2;
@@ -61,3 +67,5 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){  lo
 
   return;
 }
+
+ 			
