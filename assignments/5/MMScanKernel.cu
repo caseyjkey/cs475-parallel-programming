@@ -10,6 +10,7 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){  lo
   float* B0 = array;
   float* B1 = &array[B*B];
   float* B2 = &array[2*B*B];
+	float* Btemp;
 
   // Do calculation
 	long X, Y, X_offset, Y_offset, P;
@@ -32,7 +33,7 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){  lo
 		for (Y = 0; Y < B/S; Y++) {
 			Y_offset = Y * B * S + threadIdx.y * B;		
 			for (X = 0; X < B/S; X++) {
-				X_offset = X * S + threadIdx.x * B;
+				X_offset = X * S + threadIdx.x;
 				result=0;
 				for (P=0; P < B; P++) {
 					result += B0[Y_offset + P] * B1[X_offset + P * B];
@@ -40,12 +41,15 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){  lo
 				B2[X_offset + Y_offset] = result;
 			}
 		}
-  }
-  // Save result to device memory
-  __syncthreads();
 
-  //X_GPU = B2;
-  memcpy(R1_GPU, B2, sizeof(float)*B*B);
+		__syncthreads();
+		Btemp = B0;
+		B0 = B2;
+		B2 = Btemp;
+		
+  }
+
+  memcpy(R1_GPU + (sizeof(float) * blockIdx.x * B * B), B0, sizeof(float)*B*B);
 
   return;
 }

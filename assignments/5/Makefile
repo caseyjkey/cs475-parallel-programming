@@ -22,7 +22,7 @@ MMScanCUDA : MMScanKernel.h MMScan-wrapper.cu MMScanKernel.o
 	nvcc -g -G $(filter-out $<,$^) -o $@ $(LIB) $(OPTIONS) -DCUDA -DG=3 -DS=3
 
 
-tar: .cu matmultKernel01.cu matmultKernel.h matmult.cu Makefile vecMax.cu vecMaxKernel00.cu vecMaxKernel01.cu vecMaxKernel.h report.pdf
+tar: MMScanKernel.cu MMScan-wrapper.cu MMScanKernel.h Makefile report.pdf
 	tar cf PA5.tar $^
 
 clean:
