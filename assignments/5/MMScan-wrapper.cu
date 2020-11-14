@@ -187,25 +187,27 @@ int main(int argc, char** argv) {
       x = y;
     }
 #else  // not random
-  for(i=0; i <= B-1; i+=1)
-    for(j=0; j <= B-1; j+=1)
+  for(i=0; i <= B-1; i+=1) {
+    for(j=0; j <= B-1; j+=1) {
       X[0][i][j] = (float) 1.0;   // all 1s
-  for(n=1; n <= N-1; n+=1)
-  {
-      for(i=0; i <= B-1; i+=1)
-	{
-	  for(j=0; j <= B-1; j+=1)
-	    {
-#if defined (INTERACTIVE)
+			_lin_X[(B * B) * 0 + B * i + j] = (float) 1.0; // all 1s
+		}
+	}
+  
+	for (n=1; n <= N-1; n+=1) {
+		for(i=0; i <= B-1; i+=1) {
+			for(j=0; j <= B-1; j+=1) {
+				#if defined (INTERACTIVE)
 	      {
-		printf("X[%ld][%ld][%ld]= ", n, i, j);
-		scanf("%f", &X[n][i][j]);
+					printf("X[%ld][%ld][%ld]= ", n, i, j);
+					scanf("%f", &X[n][i][j]);
 	      }
-#else // neither random not interactive, i.e., default
-	      X[n][i][j] = (float) (n+1)/((float) (B*n));
+				#else // not random nor interactive, i.e., default
+				X[n][i][j] = (float) (n+1)/((float) (B*n));
+				_lin_X[(B * B) * n + B * i + j] = (float) (n+1)/((float) (B*n));
 #endif
 	    }
-	}
+		}
   }
 
 #endif
