@@ -5,7 +5,7 @@
 ###
 
 OPTIONS := -O3 --ptxas-options -v --gpu-architecture=sm_61 --compiler-bindir /usr/local/gcc-6.4.0/bin -std=c++11
-EXECS := MMScan verb MMScanCUDA 
+EXECS := MMScan MMScanCUDA 
 
 all:$(EXECS)
 
@@ -14,9 +14,6 @@ MMScanKernel.o : MMScanKernel.h MMScanKernel.cu
 
 MMScan : MMScanKernel.h MMScan-wrapper.cu MMScanKernel.o
 	nvcc -g -G $(filter-out $<,$^) -o $@ $(LIB) $(OPTIONS) -DG=3 -DS=3
-
-verb : MMScanKernel.h MMScan-wrapper.cu MMScanKernel.o
-	nvcc -g -G $(filter-out $<,$^) -o MMScan.verb $(LIB) $(OPTIONS) -DVERBOSE -DG=3 -DS=3
 
 MMScanCUDA : MMScanKernel.h MMScan-wrapper.cu MMScanKernel.o
 	nvcc -g -G $(filter-out $<,$^) -o $@ $(LIB) $(OPTIONS) -DCUDA -DG=3 -DS=3

@@ -4,13 +4,14 @@
 // G groups/blocks
 __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){ 
 	long threadsPerBlock = (long) S;
-  extern __shared__ float array[];
 	
 	// B0, B1 will hold intermediate products
 	// B2 will hold results
-  float* B0 = array;
-  float* B1 = &array[B*B];
-  float* B2 = &array[2*B*B];
+
+  extern __shared__ float array[];
+  float* B0 = (float*)array;
+  float* B1 = (float*)&array[B*B];
+  float* B2 = (float*)&array[2*B*B];
 	float* Btemp;
 
   // Do calculation
@@ -21,6 +22,7 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){
 	long result;
 
 	memset(B0, 0, B * B * sizeof(float));
+	__syncthreads();
 	for (Y = 0; Y < B; Y++) {
 		B0[Y * B + Y] = 1;
 	}
