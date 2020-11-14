@@ -25,7 +25,7 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){  lo
   long matricesPerBlock = N/gridDim.x;
 	long numMatrices = blockIdx.x * matricesPerBlock;
 	long elementsPerMatrix = B * B;
-	long result;
+	float result;
 
 	// Initialize B0
 	// If slow, use different threads to do this
@@ -62,8 +62,7 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){  lo
 		swapArray(B2, B0, B);
   }
 
-  //X_GPU = B2;
-  memcpy(R1_GPU, B2, sizeof(float)*B*B);
+  memcpy(R1_GPU, B0, sizeof(float)*B*B);
 
   return;
 }
