@@ -65,7 +65,7 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){
 		swapArray(B2, B0, B);
   }
 
-  memcpy(R1_GPU + (blockIdx.x * B * B * sizeof(float)), B0, sizeof(float)*B*B);
+  memcpy(R1_GPU + (blockIdx.x * B * B), B0, sizeof(float)*B*B);
 
   return;
 }
