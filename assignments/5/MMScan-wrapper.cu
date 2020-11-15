@@ -83,9 +83,9 @@ void MMScanCUDA(float* X, float* Y, float* T, long N, long B) {
 
 	cudaDeviceSynchronize();
 
-
-	float* R1 = (float*)malloc(G * B * B * sizeof(float));
+	float* R1 = (float*)malloc(sizeof(float) * G * B * B);
 	cudaMemcpy(R1, R1_GPU, matrixListSize, cudaMemcpyDeviceToHost);
+
 	for(int i = 0; i < G; i++) {
 		for(int j = 0; j < B; j++) {
 			for(int k = 0; k < B; k++) {
@@ -94,7 +94,6 @@ void MMScanCUDA(float* X, float* Y, float* T, long N, long B) {
 			}
 		}
 	}
-
 	
 	cudaFree(X_GPU);
 	//cudaFree(Y_GPU);
