@@ -151,7 +151,7 @@ __global__ void MMScanKernel02(float* X_GPU, float* R2_GPU, float* Y_GPU, long N
 			B0[Y * B + Y] = 1;
 		}
 	} else {
-		swapArrays(R2 + (blockIdx.x * B * B), B0, B);
+		swapArray(R2_GPU + (blockIdx.x * elementsPerMatrix), B0, B);
 	}
 
   for (long Q = 0; Q < matricesPerBlock; Q++) {
@@ -185,7 +185,7 @@ __global__ void MMScanKernel02(float* X_GPU, float* R2_GPU, float* Y_GPU, long N
 
     __syncthreads();
     swapArray(B2, B0, B);
-    memcpy(R2_GPU + (Q * elementsPerMatrix), B0, sizeof(float)*B*B);
+    memcpy(Y_GPU + (Q * elementsPerMatrix + matrixOffset * elementsPerMatrix), B0, sizeof(float)*B*B);
   }
 
   return;
