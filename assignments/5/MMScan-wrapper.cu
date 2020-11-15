@@ -82,15 +82,19 @@ void MMScanCUDA(float* X, float* Y, float* T, long N, long B) {
 	MMScanKernel00<<<dimGrid, dimBlock, sharedMemSize>>>(X_GPU, R1_GPU, N, B);
 
 	cudaDeviceSynchronize();
+	
+	MMScanKernel01<<<(1,1), dimBlock, sharedMemSize>>>(R1_GPU, R2_GPU, N, G, B);
 
-	float* R1 = (float*)malloc(sizeof(float) * G * B * B);
-	cudaMemcpy(R1, R1_GPU, matrixListSize, cudaMemcpyDeviceToHost);
+	cudaDeviceSynchronize();
+
+	float* R2 = (float*)malloc(sizeof(float) * G * B * B);
+	cudaMemcpy(R2, R2_GPU, matrixListSize, cudaMemcpyDeviceToHost);
 
 	for(int i = 0; i < G; i++) {
 		for(int j = 0; j < B; j++) {
 			for(int k = 0; k < B; k++) {
 				long index = i * B * B + j * B + k;
-				printf("R1[%d]: %f\n", index, R1[index]);
+				printf("R2[%d]: %f\n", index, R2[index]);
 			}
 		}
 	}
