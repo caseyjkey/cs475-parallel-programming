@@ -96,24 +96,12 @@ void MMScanCUDA(float* X, float* Y, float* T, long N, long B) {
 	cudaDeviceSynchronize();
 
 	matrixListSize = sizeof(float) * N * B * B;
-	float* resultY = (float*)malloc(matrixListSize);
-	cudaMemcpy(resultY, Y_GPU, matrixListSize, cudaMemcpyDeviceToHost);
-
-	for(int i = 0; i < G; i++) {
-		for(int j = 0; j < B; j++) {
-			for(int k = 0; k < B; k++) {
-				long index = i * B * B + j * B + k;
-				printf("Y[%d]: %f\n", index, Y[index]);
-			}
-		}
-	}
+	cudaMemcpy(Y, Y_GPU, matrixListSize, cudaMemcpyDeviceToHost);
 	
 	cudaFree(X_GPU);
 	cudaFree(Y_GPU);
 	cudaFree(R1_GPU);
 	cudaFree(R2_GPU);
-	free(resultY);
-
 }
 
 int main(int argc, char** argv) {
@@ -365,7 +353,7 @@ int main(int argc, char** argv) {
 
   // timing information
   
-  printf("Execution time for DNC:\t%lf sec.\n", elapsed_time1);	
+  printf("Execution time for CUDA: %lf sec.\n", elapsed_time1);	
   printf("Execution time for SEQ:\t%lf sec.\n", elapsed_time2);
     
   //Memory Free

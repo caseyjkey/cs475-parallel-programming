@@ -151,7 +151,7 @@ __global__ void MMScanKernel02(float* X_GPU, float* R2_GPU, float* Y_GPU, long N
 			B0[Y * B + Y] = 1;
 		}
 	} else {
-		swapArray(R2_GPU + (blockIdx.x * elementsPerMatrix), B0, B);
+		swapArray(R2_GPU + ((blockIdx.x - 1) * elementsPerMatrix), B0, B);
 	}
 
   for (long Q = 0; Q < matricesPerBlock; Q++) {
