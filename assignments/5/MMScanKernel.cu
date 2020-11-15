@@ -70,57 +70,58 @@ __global__ void MMScanKernel00(float* X_GPU, float* R1_GPU, long N, long B){
   return;
 }
 
-__global__ void MMScanKernel01(float* R1_GPU, float* R2_GPU, long N, long G, long B) {
-	long threadsPerBlock = (long) S;
+__global__ void MMScanKernel01(float* R1_GPU, float* R2_GPU, long N, long B){
+  long threadsPerBlock = (long) S;
+  long numMatrices = (long) G;
   extern __shared__ float array[];
-	
-	// B0, B1 will hold intermediate products
-	// B2 will hold results
+
+  // B0, B1 will hold intermediate products
+  // B2 will hold results
   float* B0 = (float*)array;
   float* B1 = (float*)&array[B*B];
   float* B2 = (float*)&array[2*B*B];
 
   // Do calculation
-	long X, Y, X_offset, Y_offset, P;
-	long elementsPerMatrix = B * B;
-	float result;
+  long X, Y, X_offset, Y_offset, P;
+  long elementsPerMatrix = B * B;
+  float result;
 
-	memset(B0, 0, elementsPerMatrix * sizeof(float));
-	for (Y = 0; Y < B; Y++) {
-		B0[Y * B + Y] = 1;
-	}
+  memset(B0, 0, elementsPerMatrix * sizeof(float));
+  for (Y = 0; Y < B; Y++) {
+    B0[Y * B + Y] = 1;
+  }
 
-  for (long Q = 0; Q < G; Q++) {
+  for (long Q = 0; Q < numMatrices; Q++) {
     long currentMatrix = Q * elementsPerMatrix;
 
-		for (Y = 0; Y < B/threadsPerBlock; Y++) {
+    for (Y = 0; Y < B/threadsPerBlock; Y++) {
       Y_offset = Y * B * threadsPerBlock + threadIdx.y * B;
 
       for (X = 0; X < B/threadsPerBlock; X++) {
-      	X_offset = X * threadsPerBlock + threadIdx.x;
+        X_offset = X * threadsPerBlock + threadIdx.x;
 
         B1[Y_offset + X_offset] = R1_GPU[Y_offset + X_offset];
       }
     }
-		
-		for (Y = 0; Y < B/threadsPerBlock; Y++) {
-			Y_offset = Y * B * threadsPerBlock + threadIdx.y * B;		
 
-			for (X = 0; X < B/threadsPerBlock; X++) {
-				X_offset = X * threadsPerBlock + threadIdx.x;
-				result=0;
+    for (Y = 0; Y < B/threadsPerBlock; Y++) {
+      Y_offset = Y * B * threadsPerBlock + threadIdx.y * B;
 
-				for (P=0; P < B; P++) {
-					result += B0[Y_offset + P] * B1[X_offset + P * B];
-				}			
+      for (X = 0; X < B/threadsPerBlock; X++) {
+        X_offset = X * threadsPerBlock + threadIdx.x;
+        result=0;
 
-				B2[X_offset + Y_offset] = result;
-			}
-		}
+        for (P=0; P < B; P++) {
+          result += B0[Y_offset + P] * B1[X_offset + P * B];
+        }
 
-		__syncthreads();
-		swapArray(B2, B0, B);
-		memcpy(R2_GPU + (Q * elementsPerMatrix), B0, sizeof(float)*B*B);
+        B2[X_offset + Y_offset] = result;
+      }
+    }
+
+    __syncthreads();
+    swapArray(B2, B0, B);
+    memcpy(R2_GPU + (Q * elementsPerMatrix), B0, sizeof(float)*B*B);
   }
 
   return;
