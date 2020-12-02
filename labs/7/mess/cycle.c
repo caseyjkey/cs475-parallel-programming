@@ -37,8 +37,8 @@ int main(int argc, char **argv) {
 	}
 
     message = (char*)malloc (msg_size);
-		strcpy(message, "abc"); 
-		//snprintf(message, msg_size, "%d", my_id);
+		//strcpy(message, "abc"); 
+		snprintf(message, 10, "yeet%d", my_id);
 		//itoa(my_id, message, 10);
     if (argc > 3) v=1; else v=0;           /*are we in verbose mode*/
 
@@ -50,10 +50,10 @@ int main(int argc, char **argv) {
         //   send message of size msg_size chars to process 1
         //   receive message of size msg_size chars from process p-1
 				for (i = 0; i < max_msgs; i++) {
-					printf("ID: %d, sending: %c to %d\n", my_id, message, p-1);
+					printf("ID: %d, sending: %s to %d\n", my_id, message, 1);
 					MPI_Send(message, msg_size, MPI_BYTE, 1, 0, MPI_COMM_WORLD);
 					MPI_Recv(message, msg_size, MPI_BYTE, p-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-					printf("ID: %d, received: %c from %d\n", p-1, message, 0);
+					printf("ID: %d, received: %s from %d\n", my_id, message, p-1);
 				}
 							
 
@@ -63,14 +63,14 @@ int main(int argc, char **argv) {
     } else {
 			for (i = 0; i < max_msgs; i++) {
 					MPI_Recv(message, msg_size, MPI_BYTE, my_id-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-					printf("ID: %d, received: %c from %d\n", my_id, message, my_id-1);
+					printf("ID: %d, received: %s from %d\n", my_id, message, my_id-1);
 					if (my_id == p-1) {
-						printf("ID: %d, sending: %c to %d\n", my_id, message, 0);
+						printf("ID: %d, sending: %s to %d\n", my_id, message, 0);
 						MPI_Send(message, msg_size, MPI_BYTE, 0, 0, MPI_COMM_WORLD);
 					}
 					else {
 						MPI_Send(message, msg_size, MPI_BYTE, my_id+1, 0, MPI_COMM_WORLD);
-						printf("ID: %d, sending: %c to %d\n", my_id, message, my_id+1);
+						printf("ID: %d, sending: %s to %d\n", my_id, message, my_id+1);
 					}
 				}
         // do max_msgs times:
