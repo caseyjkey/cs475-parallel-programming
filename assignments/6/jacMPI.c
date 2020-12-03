@@ -4,15 +4,26 @@
  */
 
 #include <stdio.h>
+#include "mpi.h"
 #include <stdlib.h>
 #include "timer.h"
 
 int main(int argc, char **argv) {
 
-   int     n;
-   int     t;
-   int     m = 2000;
-   double  *prev, *cur;
+   int     id; // process id
+   int     p; // number of processes
+   int     k; // buffer size   
+   int     n; // problem size
+   int     t; // loop var for number of iterations
+   int     m = 2000; // number of iterations
+   double  *start, *prev, *cur, *end;
+
+   MPI_Status status; // return status for receive
+
+   MPI_Init( &argc, &argv );
+   MPI_Comm_rank( MPI_COMM_WORLD, &id );
+   MPI_Comm_size( MPI_COMM_WORLD, &p );
+
 
    // Timer
    double  time;
@@ -33,40 +44,78 @@ int main(int argc, char **argv) {
       m = atoi(argv[2]);
    }
    if ( argc > 3 ) {
+      k = atoi(argv[3]);
+   }
+   if ( argc > 4 ) {
       v = 1;
    }
 
    // Memory allocation for data array.
-   prev  = (double *) malloc( sizeof(double) * n);
-   cur   = (double *) malloc( sizeof(double) * n);
+   int subSize  = n / p;
+   int arrSize = subSize + (2 * b); 
+   end   = (double *) malloc( sizeof(double) * n ); 
+   prev  = (double *) malloc( sizeof(double) * arrSize );
+   cur   = (double *) malloc( sizeof(double) * arrSize );
    if ( prev == NULL || cur == NULL ) {
       printf("[ERROR] : Fail to allocate memory.\n");
       exit(1);
    }
 
    // Initialization
-   for ( i=0 ; i < n ; i++ ) {
-         prev[i] = i;
-      }
+   for ( i=id*subSize ; i < id*subSize+subSize ; i++ ) {
+      prev[i] = i;
+   }
 
    cur[0]  = 0;
-   cur[n-1]  = n-1;
+   cur[subSize-1]  = id*subSize+subSize-1;
+
+      
+
+   // Wait for all processes are ready before starting timer
+   MPI_Barrier(MPI_COMM_WORLD);   
 
    initialize_timer();
    start_timer();
 
    // Computation
    t = 0;
-
-   while ( t < m) {
-      for ( i=1 ; i < n-1 ; i++ ) {
-            cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
-       }
-      temp = prev;
-      prev = cur;
-      cur  = temp;
-      t++;
+   
+   if ( id == 0 ) {
+      while ( t < m) {
+         for ( i=1 ; i < subSize+b-1 ; i++ ) {
+               cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
+          }
+         temp = prev;
+         prev = cur;
+         cur  = temp;
+         t++;
+      }
    }
+   else if ( id == n - 1 ) {
+      while ( t < m) {
+            for ( i=1 ; i < subSize+b-1 ; i++ ) {
+                  cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
+             }
+            temp = prev;
+            prev = cur;
+            cur  = temp;
+            t++;
+      }
+   }
+   else {
+      while ( t < m) {
+            for ( i=1 ; i < arrSize-1 ; i++ ) {
+                  cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
+             }
+            temp = prev;
+            prev = cur;
+            cur  = temp;
+            t++;
+       
+      }
+   }
+
+   MPI_Gather();
 
    stop_timer();
    time = elapsed_time();
