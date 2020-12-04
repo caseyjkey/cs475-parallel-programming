@@ -62,12 +62,27 @@ int main(int argc, char **argv) {
    }
 
    // Initialization
-   for ( i=id*subSize ; i < id*subSize+subSize ; i++ ) {
-      prev[i] = i;
+
+   if ( id == 0 ) {
+      for ( i=0 ; i < arrSize-b ; i++ ) {
+         prev[i] = i;
+      }
+      cur[arrSize-b-1] = arrSize-b-1;
+   }
+   else if ( id == p-1 ) {
+      for ( i=0 ; i < arrSize-b ; i++ ) {
+         prev[i] = (n/p*id) - b + i;
+      }
+      cur[arrSize-b-1] = (n/p*id) - b + arrSize-b-1;
+   }
+   else {
+      for ( i=0 ; i < arrSize ; i++ ) {
+         prev[i] = (n/p*id) - b + i;
+      }
+      cur[arrSize-1] = (n/p*id) - b + arrSize-1;
    }
 
    cur[0]  = 0;
-   cur[subSize-1]  = id*subSize+subSize-1;
 
       
 
@@ -91,7 +106,7 @@ int main(int argc, char **argv) {
          t++;
       }
    }
-   else if ( id == n - 1 ) {
+   else if ( id == p-1 ) {
       while ( t < m) {
             for ( i=1 ; i < subSize+b-1 ; i++ ) {
                   cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
