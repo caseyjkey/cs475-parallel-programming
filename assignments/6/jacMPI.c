@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
 
    // Memory allocation for data array.
    int subSize  = n / p;
-   int arrSize = subSize + (2 * b); 
+   int arrSize = subSize + (2 * k); 
    end   = (double *) malloc( sizeof(double) * n ); 
    prev  = (double *) malloc( sizeof(double) * arrSize );
    cur   = (double *) malloc( sizeof(double) * arrSize );
@@ -64,22 +64,20 @@ int main(int argc, char **argv) {
    // Initialization
 
    if ( id == 0 ) {
-      for ( i=0 ; i < arrSize-b ; i++ ) {
+      for ( i=0 ; i < arrSize-k ; i++ ) {
          prev[i] = i;
       }
-      cur[arrSize-b-1] = arrSize-b-1;
    }
    else if ( id == p-1 ) {
-      for ( i=0 ; i < arrSize-b ; i++ ) {
-         prev[i] = (n/p*id) - b + i;
+      for ( i=0 ; i < arrSize-k ; i++ ) {
+         prev[i] = (n/p*id) - k + i;
       }
-      cur[arrSize-b-1] = (n/p*id) - b + arrSize-b-1;
+      cur[arrSize-k-1] = (n/p*id) - k + arrSize-k-1;
    }
    else {
       for ( i=0 ; i < arrSize ; i++ ) {
-         prev[i] = (n/p*id) - b + i;
+         prev[i] = (n/p*id) - k + i;
       }
-      cur[arrSize-1] = (n/p*id) - b + arrSize-1;
    }
 
    cur[0]  = 0;
@@ -97,7 +95,7 @@ int main(int argc, char **argv) {
    
    if ( id == 0 ) {
       while ( t < m) {
-         for ( i=1 ; i < subSize+b-1 ; i++ ) {
+         for ( i=1 ; i < subSize+k-1 ; i++ ) {
                cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
           }
          temp = prev;
@@ -108,7 +106,7 @@ int main(int argc, char **argv) {
    }
    else if ( id == p-1 ) {
       while ( t < m) {
-            for ( i=1 ; i < subSize+b-1 ; i++ ) {
+            for ( i=1 ; i < subSize+k-1 ; i++ ) {
                   cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
              }
             temp = prev;
@@ -130,13 +128,13 @@ int main(int argc, char **argv) {
       }
    }
 
-   MPI_Gather();
+   MPI_Gather(prev+k, n/p, MPI_DOUBLE, end, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
    stop_timer();
    time = elapsed_time();
 
-   if(v){
-     for(i=0;i<n;i++) printf("%f ",prev[i]);
+   if(v && id == 0){
+     for(i=0;i<n;i++) printf("%f ",end[i]);
      printf("\n");
    }
    else
