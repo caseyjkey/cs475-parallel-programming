@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "mpi.h"
 #include <stdlib.h>
 
@@ -36,6 +37,9 @@ int main(int argc, char **argv) {
 	}
 
     message = (char*)malloc (msg_size);
+		//strcpy(message, "abc"); 
+		snprintf(message, 10, "yeet%d", my_id);
+		//itoa(my_id, message, 10);
     if (argc > 3) v=1; else v=0;           /*are we in verbose mode*/
 
     /* don't start timer until everybody is ok */
@@ -45,12 +49,30 @@ int main(int argc, char **argv) {
         // do max_msgs times:
         //   send message of size msg_size chars to process 1
         //   receive message of size msg_size chars from process p-1
+				for (i = 0; i < max_msgs; i++) {
+					printf("ID: %d, sending: %s to %d\n", my_id, message, 1);
+					MPI_Send(message, msg_size, MPI_BYTE, 1, 0, MPI_COMM_WORLD);
+					MPI_Recv(message, msg_size, MPI_BYTE, p-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+					printf("ID: %d, received: %s from %d\n", my_id, message, p-1);
+				}
+							
 
         MPI_Barrier(MPI_COMM_WORLD); 
         printf("Number, size of messages: %3d , %3d \n", max_msgs, msg_size);
         fflush(stdout);
     } else {
-
+			for (i = 0; i < max_msgs; i++) {
+					MPI_Recv(message, msg_size, MPI_BYTE, my_id-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+					printf("ID: %d, received: %s from %d\n", my_id, message, my_id-1);
+					if (my_id == p-1) {
+						printf("ID: %d, sending: %s to %d\n", my_id, message, 0);
+						MPI_Send(message, msg_size, MPI_BYTE, 0, 0, MPI_COMM_WORLD);
+					}
+					else {
+						MPI_Send(message, msg_size, MPI_BYTE, my_id+1, 0, MPI_COMM_WORLD);
+						printf("ID: %d, sending: %s to %d\n", my_id, message, my_id+1);
+					}
+				}
         // do max_msgs times:
         //   receive message of size msg_size from process to the left
         //   send message of size msg_size to process to the right (p-1 sends to 0)

@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
 	goto EXIT;
     }
     message = (char*)malloc (msg_size);
+		snprintf(message, 10, "yeet%d", id);
     if (argc > 3) v=1; else v=0;  /* are we in verbose mode? */
 
 
@@ -51,6 +52,12 @@ int main(int argc, char **argv) {
 
     if( id == 0 ) {
         // do n imes:
+        for (i = 0; i < n; i++) {
+					printf("ID: %d, sending: %s to %d\n", id, message, 1);
+					MPI_Send(message, msg_size, MPI_BYTE, 1, 0, MPI_COMM_WORLD);
+					MPI_Recv(message, msg_size, MPI_BYTE, 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+					printf("ID: %d, received: %s from %d\n", id, message, 1);
+				}
         // exchange message of msg_size chars with 1
 
         MPI_Barrier(MPI_COMM_WORLD);  /*make sure all the processes are done */
@@ -61,6 +68,12 @@ int main(int argc, char **argv) {
         // do n imes:
         // exchange message of msg_size chars with p-2
 
+        for (i = 0; i < n; i++) {
+					printf("ID: %d, sending: %s to %d\n", id, message, p-2);
+					MPI_Send(message, msg_size, MPI_BYTE, p-2, 0, MPI_COMM_WORLD);
+					MPI_Recv(message, msg_size, MPI_BYTE, p-2, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+					printf("ID: %d, received: %s from %d\n", id, message, p-2);
+				}
 
         MPI_Barrier(MPI_COMM_WORLD); 
 
@@ -68,6 +81,17 @@ int main(int argc, char **argv) {
       // do n times
       //    exchange message with previous process
       //    exchange message with next process 
+        for (i = 0; i < n; i++) {
+					printf("ID: %d, sending: %s to %d\n", id, message, id-1);
+					MPI_Send(message, msg_size, MPI_BYTE, id-1, 0, MPI_COMM_WORLD);
+					MPI_Recv(message, msg_size, MPI_BYTE, id-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+					printf("ID: %d, received: %s from %d\n", id, message, id-1);
+
+					printf("ID: %d, sending: %s to %d\n", id, message, id+1);
+					MPI_Send(message, msg_size, MPI_BYTE, id+1, 0, MPI_COMM_WORLD);
+					MPI_Recv(message, msg_size, MPI_BYTE, id+1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+					printf("ID: %d, received: %s from %d\n", id, message, id+1);
+					}
         MPI_Barrier(MPI_COMM_WORLD); 
     }	    
 
