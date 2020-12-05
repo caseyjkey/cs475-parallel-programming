@@ -62,17 +62,9 @@ int main(int argc, char **argv) {
    }
 
    // Initialization
-   int start;
-	 if ( id == 0 )
-			start = 0;
-	 else
-		  start = (n/p) * id - k;
+   int start = (n/p) * id - k;
 		
-	 int length;
-	 if ( id == 0 || id == p-1 )
-			length = n/p + k;
-	 else
-			length = n/p + 2*k;
+	 int length = n/p + 2*k;
 
 	 for ( i=start ; i < start+length; i++ )
 			prev[i-start] = i;
@@ -90,8 +82,8 @@ int main(int argc, char **argv) {
 		 printf("----- cur -----\n");
 		 for(i=0;i<length;i++) printf("%f ", cur[i]);
      printf("---------------\n");
-		 printf("--------------- END INIT ------------------\n");
-      
+		 printf("--------------- END INIT ------------------\n");   
+	 }
 
    // Wait for all processes are ready before starting timer
    MPI_Barrier(MPI_COMM_WORLD);   
@@ -100,8 +92,6 @@ int main(int argc, char **argv) {
    start_timer();
 
    // Computation
-	 double *msg;
-	 msg = (double*) malloc(
    t = 0;
    int stop;
    
@@ -119,15 +109,19 @@ int main(int argc, char **argv) {
       t++;
       // Refresh buffers
       if (t % k == 0) {
-         if ( id == 0 ) {
-			   MPI_Send(prev+k, k, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD);	
-            MPI_Recv(cur+length, k, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD); 
+			   // send right side of array to right neighbor
+				 // load right buffer
+         if ( id != p-1 ) {
+				    MPI_Send(prev+(n/p), k, MPI_DOUBLE, id+1, 0, MPI_COMM_WORLD);	
+            MPI_Recv(cur+k+(n/p), k, MPI_DOUBLE, id, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
          }
-         else if ( id == p-1 ) {
-            MPI_Send(prev+length-k, k, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD);	
-            MPI_Recv(cur+length, k, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD); 
-
+				 // send left side of array to left neighbor
+				 // load left buffer
+         if ( id != 0 ) {
+            MPI_Send(prev+k, k, MPI_DOUBLE, id-1, 0, MPI_COMM_WORLD);	
+            MPI_Recv(cur, k, MPI_DOUBLE, id, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
          }
+				MPI_Barrier(MPI_COMM_WORLD);
       }  
    }
 
