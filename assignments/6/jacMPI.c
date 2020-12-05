@@ -145,7 +145,6 @@ int main(int argc, char **argv) {
 	 }
 	
    if (t % 2 == 0) {
-		printf("hi\n");
 		cur[length-k-1] = prev[length-k-1];
 	 }
 
