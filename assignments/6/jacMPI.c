@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
    
    if ( id == 0 ) {
       while ( t < m) {
-         for ( i=1 ; i < subSize+k-1 ; i++ ) {
+         for ( i=1 ; i < arrSize-k-1 ; i++ ) {
                cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
           }
          temp = prev;
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
    }
    else if ( id == p-1 ) {
       while ( t < m) {
-            for ( i=1 ; i < subSize+k-1 ; i++ ) {
+            for ( i=1 ; i < arrSize-k-1 ; i++ ) {
                   cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
              }
             temp = prev;
