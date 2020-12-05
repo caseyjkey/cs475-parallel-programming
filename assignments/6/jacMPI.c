@@ -121,29 +121,35 @@ int main(int argc, char **argv) {
             MPI_Send(prev+k, k, MPI_DOUBLE, id-1, 0, MPI_COMM_WORLD);	
             MPI_Recv(cur, k, MPI_DOUBLE, id-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
          }
-				/*
-				if ( id == p-1 ) {
-					MPI_Recv(cur, k, MPI_DOUBLE, id-1, 0, MPI_COMM_WORLD, &status); 
-					MPI_Send(prev+k, k, MPI_DOUBLE, id-1, 1, MPI_COMM_WORLD);
-				}
-				*/
-				MPI_Barrier(MPI_COMM_WORLD);
+         MPI_Barrier(MPI_COMM_WORLD);
       }  
    }
 
-   MPI_Gather(prev+k, n/p, MPI_DOUBLE, end, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	
+	 if(v){
+		 MPI_Barrier(MPI_COMM_WORLD);
+		 printf("%d: prev", id);
+     for(i=k;i<length-k;i++) printf(" %f ", id, prev[i]);
+		 printf("\n%d: cur", id);
+		 for(i=k;i<length-k;i++) printf(" %f ", id, cur[i]);
+		 printf("\n\n");
+	 }
+
+   MPI_Gather(cur+k, n/p, MPI_DOUBLE, end, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
    stop_timer();
    time = elapsed_time();
+	 if (id == 0) {
+		 if(v){
+			 for(i=0;i<n;i++) printf("%f ", end[i]);
+			 printf("\n");
+		 }
+		 else
+			 printf("first, mid, last: %f %f %f\n",end[0], end[n/2-1], end[n-1]);
 
-   if(v){
-     for(i=0;i<n;i++) printf("%f ", end[i]);
-     printf("\n");
-   }
-   else
-     printf("first, mid, last: %f %f %f\n",prev[0], prev[n/2-1], prev[n-1]);
+    printf("Data size : %d  , #iterations : %d , time : %lf sec\n", n, t, time);
+	}
      
-   printf("Data size : %d  , #iterations : %d , time : %lf sec\n", n, t, time);
 	MPI_Finalize();
 }
 
