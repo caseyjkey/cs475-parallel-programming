@@ -72,16 +72,14 @@ int main(int argc, char **argv) {
 
    cur[0] = 0;
 	 cur[length-1] = start + length - 1;
-
+	 
 	 if(v){
 		 printf("\n---------------- INIT id: %d -------------\n", id);
-		 printf("start: %d, length: %d\n", start, length);
-		 printf("----- prev ----\n");
-     for(i=0;i<length;i++) printf("%f ", prev[i]);
-     printf("---------------\n\n");
-		 printf("----- cur -----\n");
-		 for(i=0;i<length;i++) printf("%f ", cur[i]);
-     printf("---------------\n");
+		 printf("%d: prev", id);
+     for(i=k;i<length-k;i++) printf(" %f ", id, prev[i]);
+		 printf("\n%d: cur", id);
+		 for(i=k;i<length-k;i++) printf(" %f ", id, cur[i]);
+		 printf("\n\n");
 		 printf("--------------- END INIT ------------------\n");   
 	 }
 
@@ -95,14 +93,25 @@ int main(int argc, char **argv) {
    t = 0;
    int stop;
    
-   if ( id == 0 || id == p-1 ) 
-      stop = arrSize-k-1; 
+   if ( id != p-1 ) 
+      stop = n/p + 2*k; 
    else 
-      stop = arrSize-1;
+      stop = n/p + k-1;
+
+  if ( id == 0 )
+		i = 1+k; 
+	else
+		i = 1;
 
 	while ( t < m) {
-      for ( i=1 ; i < stop ; i++ ) 
+			if (v)
+				printf("------------- t = %d --------------\n", t);
+      for ( ; i < stop ; i++ ) {
+
          cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
+				 if (v)
+						printf("proc %d cur[%d]: %f = (%f + %f + %f)/3\n", id, i, cur[i], prev[i-1], prev[i], prev[i+1]); 
+			}
       temp = prev;
       prev = cur;
       cur  = temp;
@@ -133,6 +142,11 @@ int main(int argc, char **argv) {
 		 printf("\n%d: cur", id);
 		 for(i=k;i<length-k;i++) printf(" %f ", id, cur[i]);
 		 printf("\n\n");
+	 }
+	
+   if (t % 2 == 0) {
+		printf("hi\n");
+		cur[length-k-1] = prev[length-k-1];
 	 }
 
    MPI_Gather(cur+k, n/p, MPI_DOUBLE, end, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
