@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
    int     n; // problem size
    int     t; // loop var for number of iterations
    int     m = 2000; // number of iterations
-   double  *start, *prev, *cur, *end;
+   double  *prev, *cur, *end;
 
    MPI_Status status; // return status for receive
 
@@ -62,25 +62,36 @@ int main(int argc, char **argv) {
    }
 
    // Initialization
+   int start;
+	 if ( id == 0 )
+			start = 0;
+	 else
+		  start = (n/p) * id - k;
+		
+	 int length;
+	 if ( id == 0 || id == p-1 )
+			length = n/p + k;
+	 else
+			length = n/p + 2*k;
 
-   if ( id == 0 ) {
-      for ( i=0 ; i < arrSize-k ; i++ ) {
-         prev[i] = i;
-      }
-   }
-   else if ( id == p-1 ) {
-      for ( i=0 ; i < arrSize-k ; i++ ) {
-         prev[i] = (n/p*id) - k + i;
-      }
+	 for ( i=start ; i < length; i++ )
+			prev[i-start] = i;
+
+	 if ( id == p-1 )
       cur[arrSize-k-1] = (n/p*id) - k + arrSize-k-1;
-   }
-   else {
-      for ( i=0 ; i < arrSize ; i++ ) {
-         prev[i] = (n/p*id) - k + i;
-      }
-   }
 
-   cur[0]  = 0;
+   cur[0] = 0;
+
+	 if(v){
+		 printf("\n---------------- INIT id: %d -------------\n", id);
+		 printf("----- prev ----\n");
+     for(i=0;i<length;i++) printf("%f ", prev[i]);
+     printf("\n");
+		 printf("----- cur -----\n");
+		 for(i=0;i<length;i++) printf("%f ", cur[i]);
+     printf("\n");
+		 printf("--------------- END INIT ------------------\n");
+   }
 
       
 
@@ -95,7 +106,7 @@ int main(int argc, char **argv) {
    
    if ( id == 0 ) {
       while ( t < m) {
-         for ( i=1 ; i < arrSize-k-1 ; i++ ) {
+         for ( i=1 ; i < subSize+k-1 ; i++ ) {
                cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
           }
          temp = prev;
@@ -106,7 +117,7 @@ int main(int argc, char **argv) {
    }
    else if ( id == p-1 ) {
       while ( t < m) {
-            for ( i=1 ; i < arrSize-k-1 ; i++ ) {
+            for ( i=1 ; i < subSize+k-1 ; i++ ) {
                   cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
              }
             temp = prev;
@@ -133,8 +144,8 @@ int main(int argc, char **argv) {
    stop_timer();
    time = elapsed_time();
 
-   if(v && id == 0){
-     for(i=0;i<n;i++) printf("%f ",end[i]);
+   if(v){
+     for(i=0;i<n;i++) printf("%f ", end[i]);
      printf("\n");
    }
    else
