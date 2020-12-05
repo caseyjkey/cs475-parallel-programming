@@ -113,14 +113,20 @@ int main(int argc, char **argv) {
 				 // load right buffer
          if ( id != p-1 ) {
 				    MPI_Send(prev+(n/p), k, MPI_DOUBLE, id+1, 0, MPI_COMM_WORLD);	
-            MPI_Recv(cur+k+(n/p), k, MPI_DOUBLE, id, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
+            MPI_Recv(cur+k+(n/p), k, MPI_DOUBLE, id+1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
          }
 				 // send left side of array to left neighbor
 				 // load left buffer
          if ( id != 0 ) {
             MPI_Send(prev+k, k, MPI_DOUBLE, id-1, 0, MPI_COMM_WORLD);	
-            MPI_Recv(cur, k, MPI_DOUBLE, id, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
+            MPI_Recv(cur, k, MPI_DOUBLE, id-1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
          }
+				/*
+				if ( id == p-1 ) {
+					MPI_Recv(cur, k, MPI_DOUBLE, id-1, 0, MPI_COMM_WORLD, &status); 
+					MPI_Send(prev+k, k, MPI_DOUBLE, id-1, 1, MPI_COMM_WORLD);
+				}
+				*/
 				MPI_Barrier(MPI_COMM_WORLD);
       }  
    }
@@ -138,6 +144,7 @@ int main(int argc, char **argv) {
      printf("first, mid, last: %f %f %f\n",prev[0], prev[n/2-1], prev[n-1]);
      
    printf("Data size : %d  , #iterations : %d , time : %lf sec\n", n, t, time);
+	MPI_Finalize();
 }
 
 
