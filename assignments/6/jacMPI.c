@@ -74,27 +74,23 @@ int main(int argc, char **argv) {
 	 else
 			length = n/p + 2*k;
 
-	 for ( i=start ; i < length; i++ )
+	 for ( i=start ; i < start+length; i++ )
 			prev[i-start] = i;
 
-	 //if ( id == p-1 )
-   //   cur[arrSize-k-1] = (n/p*id) - k + arrSize-k-1;
 
    cur[0] = 0;
-	 cur[length] = start + length;
+	 cur[length-1] = start + length - 1;
 
 	 if(v){
 		 printf("\n---------------- INIT id: %d -------------\n", id);
-
+		 printf("start: %d, length: %d\n", start, length);
 		 printf("----- prev ----\n");
      for(i=0;i<length;i++) printf("%f ", prev[i]);
-     printf("\n");
+     printf("---------------\n\n");
 		 printf("----- cur -----\n");
 		 for(i=0;i<length;i++) printf("%f ", cur[i]);
-     printf("\n");
+     printf("---------------\n");
 		 printf("--------------- END INIT ------------------\n");
-   }
-
       
 
    // Wait for all processes are ready before starting timer
@@ -104,41 +100,35 @@ int main(int argc, char **argv) {
    start_timer();
 
    // Computation
+	 double *msg;
+	 msg = (double*) malloc(
    t = 0;
+   int stop;
    
-   if ( id == 0 ) {
-      while ( t < m) {
-         for ( i=1 ; i < subSize+k-1 ; i++ ) {
-               cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
-          }
-         temp = prev;
-         prev = cur;
-         cur  = temp;
-         t++;
-      }
-   }
-   else if ( id == p-1 ) {
-      while ( t < m) {
-            for ( i=1 ; i < subSize+k-1 ; i++ ) {
-                  cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
-             }
-            temp = prev;
-            prev = cur;
-            cur  = temp;
-            t++;
-      }
-   }
-   else {
-      while ( t < m) {
-            for ( i=1 ; i < arrSize-1 ; i++ ) {
-                  cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
-             }
-            temp = prev;
-            prev = cur;
-            cur  = temp;
-            t++;
-       
-      }
+   if ( id == 0 || id == p-1 ) 
+      stop = arrSize-k-1; 
+   else 
+      stop = arrSize-1;
+
+	while ( t < m) {
+      for ( i=1 ; i < stop ; i++ ) 
+         cur[i] = (prev[i-1]+prev[i]+prev[i+1])/3;
+      temp = prev;
+      prev = cur;
+      cur  = temp;
+      t++;
+      // Refresh buffers
+      if (t % k == 0) {
+         if ( id == 0 ) {
+			   MPI_Send(prev+k, k, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD);	
+            MPI_Recv(cur+length, k, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD); 
+         }
+         else if ( id == p-1 ) {
+            MPI_Send(prev+length-k, k, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD);	
+            MPI_Recv(cur+length, k, MPI_DOUBLE, 1, 0, MPI_COMM_WORLD); 
+
+         }
+      }  
    }
 
    MPI_Gather(prev+k, n/p, MPI_DOUBLE, end, n/p, MPI_DOUBLE, 0, MPI_COMM_WORLD);
