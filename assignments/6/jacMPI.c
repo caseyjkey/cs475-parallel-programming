@@ -77,13 +77,15 @@ int main(int argc, char **argv) {
 	 for ( i=start ; i < length; i++ )
 			prev[i-start] = i;
 
-	 if ( id == p-1 )
-      cur[arrSize-k-1] = (n/p*id) - k + arrSize-k-1;
+	 //if ( id == p-1 )
+   //   cur[arrSize-k-1] = (n/p*id) - k + arrSize-k-1;
 
    cur[0] = 0;
+	 cur[length] = start + length;
 
 	 if(v){
 		 printf("\n---------------- INIT id: %d -------------\n", id);
+
 		 printf("----- prev ----\n");
      for(i=0;i<length;i++) printf("%f ", prev[i]);
      printf("\n");
