@@ -51,7 +51,7 @@ def collect_data(program, cores, multi = False):
     m = 12000
     times = []
     thread_means = []
-    for b in [10000, 20000, 30000]:
+    for b in [10, 50, 100, 1000, 10000, 20000]:
         print("Buffer:", b)
         results = []
         for i in range(0, 8): 
@@ -107,7 +107,7 @@ two_proc_results = collect_data(program_name, 12, True)
 speedups = calculate_speedup(one_proc_results, two_proc_results)
 
 data = pd.DataFrame({
-    "Buffer": [10000, 20000, 30000],
+    "Buffer": [10, 50, 100, 1000, 10000, 20000],
     "Speedup": speedups
 })
 
