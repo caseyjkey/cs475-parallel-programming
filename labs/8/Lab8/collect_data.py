@@ -90,11 +90,24 @@ def collect_seq_data(program, sizes):
 
 
 # index represents the index of sizes array
-def calculate_speedup(baseline_mean, test_times):
+def calculate_speedup(baseline_mean, test_times, sizes):
     speedup_list = []
     # datum = (threads, problem_size, mean_time)
+    print(baseline_mean, sizes)
+    #h = [i for i in baseline_mean if i[1] == sizes[0]]
+    #h = sum(h) / len(h)
+    #t = [i for i in baseline_mean if i[1] == sizes[1]]
+    #t = sum(t) / len(t)
+    #tt = [i for i in baseline_mean if i[1] == sizes[2]]
+    #tt = sum(tt) / len(tt)
+    #print("h", h)
     for datum in test_times:
-        speedup = baseline_mean / datum[2] * 100
+        if datum[1] == sizes[0]:
+            speedup = baseline_mean[0] / datum[2] * 100
+        elif datum[1] == sizes[1]:
+            speedup = baseline_mean[1] / datum[2] * 100
+        elif datum[1] == sizes[2]:
+            speedup = baseline_mean[2] / datum[2] * 100
         speedup_list.append((datum[0], datum[1], speedup))
     return speedup_list
 
@@ -102,10 +115,9 @@ def calculate_speedup(baseline_mean, test_times):
 sizes = [300, 3000, 30000]
 
 seq_results = collect_seq_data(seq, sizes)
-baseline_mean = sum(seq_results)/len(seq_results)
 
 omp_results = collect_data(omp, sizes)
-omp_speedups = calculate_speedup(baseline_mean, omp_results)
+omp_speedups = calculate_speedup(seq_results, omp_results, sizes)
 
 
 print(omp_speedups[0])
