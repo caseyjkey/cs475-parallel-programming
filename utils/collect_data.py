@@ -83,9 +83,9 @@ print("Eff", efficiency_list)
 print("Speedup", speedup_list)
 #print("Eff * 100", [datum[1] * 100 for datum in efficiency_list])
 data = pd.DataFrame({
-    "Mean Execution Time (s)": [datum[1] for datum in mean_times],
-    "Speedup (%)": [datum[1] for datum in speedup_list],
-    "Efficiency (%)": [datum[1] for datum in efficiency_list]
+    "Threads": range(1,9),
+    "Speedup (%)": [datum[1] for datum in speedup_list]
+    #"Efficiency (%)": [datum[1] for datum in efficiency_list]
 })
 
 filename = program_name.split('/')[1] 
