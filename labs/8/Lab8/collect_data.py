@@ -9,12 +9,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 seq = {
-    'program_name': './prog-SEQ',
+    'program_name': './prog_SEQ',
     'time_token': 'time ='
 }
 
 omp = {
-    'program_name': './prog-OMP',
+    'program_name': './prog_OMP',
     'time_token': 'time ='
 }
 
